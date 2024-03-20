@@ -12,9 +12,12 @@ from flightgear_python.fg_if import FDMConnection
 
 def fdm_callback(fdm_data, event_pipe):
     if event_pipe.child_poll():
-        phi_rad_child, = event_pipe.child_recv()  # unpack tuple
+        phi_rad_child, psi_rad_child, theta_rad_child, = event_pipe.child_recv()  # unpack tuple
         # set only the data that we need to
+        fdm_data['theta_rad'] = theta_rad_child  # we can force our own values
+        fdm_data['psi_rad'] = psi_rad_child  # we can force our own values
         fdm_data['phi_rad'] = phi_rad_child  # we can force our own values
+        print(fdm_data)
         # fdm_data.alt_m = fdm_data.alt_m + phi_rad_child  # or just make a relative change
     return fdm_data  # return the whole structure
 
@@ -29,6 +32,8 @@ def main():
     fdm_conn.connect_tx('localhost', 5502)
     fdm_conn.start()  # Start the FDM RX/TX loop
     phi_rad_parent = 0.0
+    psi_rad_parent = 0.0
+    theta_rad_parent = 0.0
 
     with Serial(port="COM6", baudrate=115200, timeout=1, writeTimeout=1) as port_serie:
         serial_reader.wait_for("", port_serie)
@@ -47,6 +52,9 @@ def main():
             elif last == "s":
                 print("Save")
                 base_data = read_data
+                phi_rad_parent = 0.0
+                psi_rad_parent = 0.0
+                theta_rad_parent = 0.0
 
             data = base_data - read_data
             print(f"Received data: {data}")
@@ -55,11 +63,15 @@ def main():
             # phi_rad_parent += data.rz / 10
             # send tuple
 
-            add = round(data.rz/100, 3)*100
-            phi_rad_parent += add
-            print(add)
+            addphi = round(data.rz / 100, 3)*30
+            addpsi = round(data.rx / 100, 3)*30
+            addtheta = round(data.ry / 100, 3)*30
+            phi_rad_parent += addphi
+            psi_rad_parent += addpsi
+            theta_rad_parent += addtheta
+            print(addphi, addpsi)
             fdm_event_pipe.parent_send(
-                (phi_rad_parent,))
+                (phi_rad_parent, psi_rad_parent, theta_rad_parent,))
 
 
 def cleanup():

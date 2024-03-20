@@ -86,7 +86,7 @@ void setup(void) {
   }
 
   Serial.println("");
-  delay(100);
+  delay(200);
 }
 
 void loop() {
@@ -116,5 +116,5 @@ void loop() {
   Serial.println(" degC");
 
   Serial.println("");
-  delay(100);
+  delay(50);
 }
