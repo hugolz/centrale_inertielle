@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#wrapper {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+}
+
+#controls {
+  display: inline-grid;
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  align-self: start;
+}
+
+.movements_control {
+  border: solid 1px black;  
+  margin: 0;
+  padding: 0;
+
+  height: 10em;
+  width : 10em;
+}
+
+.movements_control img {
+  width: inherit;
+  height: inherit;
+}
+
+#button_up {
+  grid-column-start: 2;
+}
+
+#button_left {
+  grid-column-start: 1;
+}
+
+#button_down {}
+
+#button_right {
+  grid-column-start: 3;
+}
