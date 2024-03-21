@@ -2,18 +2,14 @@ import socket
 import serial
 from read_card import serial_reader
 
-HOST = '192.168.133.206'    # The remote host
+"""
+Goal:
+    send what your receive from the card
+"""
+
+HOST = '127.0.0.1'    # The remote host
 PORT = 50021  # The same port as used by the server
 BUF_SIZE = 1024
-
-
-def send(s, msg):
-    # msg_bytes = b"hi"  # json from data
-    s.sendall()
-
-
-def recv(s) -> str:
-    return s.recv(BUF_SIZE)
 
 
 if __name__ == "__main__":
@@ -33,8 +29,7 @@ if __name__ == "__main__":
                 serial_reader.wait_for("Gyro range set to:", port_serie)
                 serial_reader.wait_for("Filter bandwidth set to:", port_serie)
                 serial_reader.wait_for("", port_serie)
-                for i in range(10):
-
+                while True:
                     e = port_serie.readline()
                     print(f"Sending: {e}")
                     s.send(e)

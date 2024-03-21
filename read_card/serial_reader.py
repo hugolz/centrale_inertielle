@@ -17,7 +17,6 @@ class Data:
         new.ry = self.ry - other.ry
         new.rz = self.rz - other.rz
 
-
         new.ax = round(new.ax, 3)
         new.ay = round(new.ay, 3)
         new.az = round(new.az, 3)
@@ -29,6 +28,13 @@ class Data:
 
     def __str__(self):
         return f"Data{{a: {{x: {self.ax}, y: {self.ay}, z: {self.az}}}, r: {{x: {self.rx}, y: {self.ry}, z: {self.rz}}}}}"
+
+    def __eq__(self, other):
+        if not isinstance(other, Data):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        return self.ax == other.ax and self.ay == other.ay and self.az == other.az and self.rx == other.rx and self.ry == other.ry and self.rz == other.rz
 
 
 def parse_float(line: str, trigger: str) -> str:
@@ -103,4 +109,52 @@ def read_one(port_serie) -> Data:
         else:
             print(f"Could not understand: {line}")
 
+    return data
+
+
+# Not as DRY as it could b but it's fine for now
+def read_one_from_socket(s, buffer_size) -> Data:
+    data = Data()
+
+    has_info = False
+
+    while True:
+        line = sanitize_line(s.recv(buffer_size))
+
+        if line == "":
+            break
+
+        if line.startswith("Acceleration"):
+            has_info = True
+            # print(f"accel: {line}")
+
+            x = parse_float(line, 'X')
+            y = parse_float(line, 'Y')
+            z = parse_float(line, 'Z')
+
+            data.ax = x
+            data.ay = y
+            data.az = z
+
+        elif line.startswith("Rotation"):
+            has_info = True
+            # print(f"rota: {line}")
+
+            x = parse_float(line, 'X')
+            y = parse_float(line, 'Y')
+            z = parse_float(line, 'Z')
+
+            data.rx = x
+            data.ry = y
+            data.rz = z
+
+        elif line.startswith("Temperature"):
+            # print(f"temp: {line}")
+            temp = parse_float(line, 'Temperature:')
+
+        else:
+            print(f"Could not understand: {line}")
+
+    if not has_info:
+        return None
     return data
