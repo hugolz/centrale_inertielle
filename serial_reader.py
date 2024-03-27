@@ -63,22 +63,32 @@ def sanitize_line(line_bytes) -> str:
     return line.replace("\r", "").replace("\n", "")
 
 
-def wait_for(trigger: str, port_serie):
+def wait_for(trigger: str, serial_port):
     while True:
-        line = sanitize_line(port_serie.readline())
+        line = sanitize_line(serial_port.readline())
 
         if line.startswith(trigger):
             break
 
 
-def read_one(port_serie) -> Data:
-    if not port_serie.isOpen():
+def wait_for_init(serial_port):
+    wait_for("", serial_port)
+    wait_for("Adafruit MPU6050 test!", serial_port)
+    wait_for("MPU6050 Found!", serial_port)
+    wait_for("Accelerometer range set to:", serial_port)
+    wait_for("Gyro range set to:", serial_port)
+    wait_for("Filter bandwidth set to:", serial_port)
+    wait_for("", serial_port)
+
+
+def read_one(serial_port) -> Data:
+    if not serial_port.isOpen():
         return None
 
     data = Data()
 
     while True:
-        line = sanitize_line(port_serie.readline())
+        line = sanitize_line(serial_port.readline())
 
         if line == "":
             break

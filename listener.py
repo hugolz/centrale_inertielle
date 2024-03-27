@@ -12,6 +12,8 @@ listener = None
 def on_press(key):
     global last_pressed
     last_pressed = key
+
+    # The default format is weird, let's use strings without type identifier
     if type(key) == Key:
         last_pressed = f"{key}".replace("Key.", "")
     else:
@@ -36,7 +38,6 @@ def get_last_key():
 def start():
     global listener, running
     running = True
-    # Collect events until released
     listener = Listener(
         on_press=on_press,
         on_release=on_release)

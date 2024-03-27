@@ -6,11 +6,14 @@ import tornado.websocket
 import tornado.ioloop
 import tornado.wsgi
 import tornado.web
+import flightgear
 import threading
+import datetime
 import json
 import os
 
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "\\static"
+DISPATCH_TIMEOUT_MS = 750
 
 define('port', type=int, default=8888)
 
@@ -52,7 +55,7 @@ class ClientWS(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print(f"[{self.request.remote_ip}]:", message)
         msg = json.loads(message)  # todo: safety?
-
+        print(f"{message}\n{msg}")
         with ClientWS.client_list_mutex:
             for c in ClientWS.clients:
                 if c != self:
@@ -70,6 +73,26 @@ class ClientWS(tornado.websocket.WebSocketHandler):
         print(f"Running {len(self.clients)} clients")
 
 
+def dispatch_to_clients():
+    import random
+    print("dispatch")
+    ClientWS.client_list_mutex.acquire(timeout=DISPATCH_TIMEOUT_MS/60)
+    button_value = bool(random.getrandbits(1))
+    for client in ClientWS.clients:
+        if button_value:
+            client.write_message(json.dumps(
+                {"event": "direction_press", "data": "Left", "button_event": "mousedown"}))
+        else:
+            client.write_message(json.dumps(
+                {"event": "direction_release", "data": "Left", "button_event": "mouseup"}))
+    ClientWS.client_list_mutex.release()
+
+    print(f"{flightgear.last_fdm}")
+
+    tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(
+        00, 00, 00, DISPATCH_TIMEOUT_MS), dispatch_to_clients)
+
+
 def start():
     print(f"Running server")
     tornado_app = tornado.web.Application([
@@ -80,6 +103,7 @@ def start():
     ])
     server = tornado.httpserver.HTTPServer(tornado_app)
     server.listen(options.port)
+    dispatch_to_clients()
     tornado.ioloop.IOLoop.instance().start()
 
 
