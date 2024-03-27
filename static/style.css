@@ -1,6 +1,12 @@
+html {
+  width: 100%;
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
+  background-color: #101930;
 }
 
 #wrapper {
@@ -30,16 +36,15 @@ body {
   height: inherit;
 }
 
-#button_up {
-  grid-column-start: 2;
+
+.instruments {
+  width: 25%;
+  margin: 15px;
 }
 
-#button_left {
-  grid-column-start: 1;
-}
-
-#button_down {}
-
-#button_right {
-  grid-column-start: 3;
+#instrument_wrapper  {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: auto;
 }

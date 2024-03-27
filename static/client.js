@@ -4,11 +4,6 @@ let WS_ADDRESS = '192.168.56.1'
 
 let websocket = false;
 
-function isMobile() {
-  try{ document.createEvent("TouchEvent"); return true; }
-  catch(e){ return false; }
-}
-
 $(document).ready(function () {
     if ("WebSocket" in window){
         websocket = true;
@@ -21,6 +16,8 @@ $(document).ready(function () {
     ws_send(msg);
 });
 
+
+
 function ws_send(msg){
     if( websocket == true ){
         // if ws is not open call open_ws, which will call ws_send back
@@ -32,6 +29,21 @@ function ws_send(msg){
         }
     }
 }
+
+
+function roll(data) {
+    return data;
+}
+
+function pitch(data) {
+    return data;
+}
+
+function yaw(data) {
+    return data;
+}
+
+
 
 function open_ws(msg){
     if( typeof(ws) == 'undefined' || ws.readyState === undefined || ws.readyState > 1){
@@ -47,27 +59,25 @@ function open_ws(msg){
         };
 
         ws.onmessage = function (evt){
-            msg = JSON.parse(evt.data)
+            msg = JSON.parse(evt.data);
+            let pi = Math.PI
             console.log(`Receiving ${JSON.stringify(msg)}`);
             
-            if( msg.event == "direction_press" ){
-                let button_id = direction_to_button_id(msg.data);
-                if (button_id != ''){
-                    direction_trigger(button_id, 'press')
-                }else{
-                    console.log(`Could not find the right id for given button ${msg.data}`)
-                }
-            }else if( msg.event == "direction_release" ){
-                let button_id = direction_to_button_id(msg.data);
-                if (button_id != ''){
-                    direction_trigger(button_id, 'release')
-                }else{
-                    console.log(`Could not find the right id for given button ${msg.data}`)
+            if( msg.event == "fdm" ){
+                let roll = (msg.data.roll)*180/pi;
+                let pitch = msg.data.pitch;
+                let yaw = msg.data.yaw;
+                if (roll != '' && pitch != '' && yaw != ''){
+                    att(yaw, pitch, roll)
+                }else if (roll == '' || pitch != '' && yaw != ''){
+                    att(yaw, pitch, roll);
+                    console.log(`Could not set the right attitude with data : ${msg.data}`)
                 }
             }else{
                 console.log('Could not understand reveived message')
             }
         };
+
 
         ws.onclose = function(){ 
             // websocket is closed, re-open
@@ -78,93 +88,79 @@ function open_ws(msg){
    }
 }
 
-function button_id_to_direction(id){
-    let direction = '';
-    switch (id){
-    case 'button_up':
-        direction = 'Up';
-        break
-    case 'button_left':
-        direction = 'Left';
-        break
-    case 'button_down':
-        direction = 'Down';
-        break
-    case 'button_right':
-        direction = 'Right';
-        break
-    }
-    return direction
+
+function att(yaw, pitch, roll){	
+    console.log(roll)
+    document.querySelector("#Roll").setAttribute("transform", "rotate("+roll+" 256.0 256.0 ) ");
+    document.querySelector("#Pitch").setAttribute("transform", "translate("+yaw+" "+pitch+" ) ");
 }
 
-function direction_to_button_id(dir){
-    let id = '';
-    switch (dir){
-    case 'Up':
-        id = 'button_up';
-        break
-    case 'Left':
-        id = 'button_left';
-        break
-    case 'Down':
-        id = 'button_down';
-        break
-    case 'Right':
-        id = 'button_right';
-        break
-    }
-    return id
+function card(cap){	
+    cap = -cap;
+    document.querySelector("#Card").setAttribute("transform", "rotate("+cap+" 256.0 256.0 ) ");
 }
 
-function direction_trigger(id, state){
-    let color = '';
-    if (state == 'press'){
-        color = PRESS_COLOR
-    }
-    document.getElementById(id).style.backgroundColor = color
-    if (state == 'press'){
-        console.log(`${id} pressed`)
-    }else if (state == 'release'){
-        console.log(`${id} released`)
-    }else{
-        console.log(`state '${state}' could not be understood`)
-    }
+function altitude(alt){
+    resteC = alt%1000;
+    c = resteC*90/250;
+    resteM = alt%10000;
+    m = resteM*90/2500;
+    resteDM = alt%100000;
+    dm = resteDM*90/25000;
     
+    document.querySelector("#Cent").setAttribute("transform", "rotate(" + c + " 256.0 256.0 ) ");
+    document.querySelector("#Mille").setAttribute("transform", "rotate(" + m + " 256.0 256.0 ) ");
+    document.querySelector("#DixMille").setAttribute("transform", "rotate(" + dm + " 256.0 256.0 ) ");
+    document.alt.alt.value = alt;
+}
+    
+function demo(){	
+        var r = document.attitude.roll.value;		
+        var timer = setInterval(() => {	r = parseFloat(document.attitude.step.value)+parseFloat(document.attitude.roll.value);
+                                att(document.attitude.yaw.value, document.attitude.pitch.value, r); 
+                                document.attitude.roll.value = r;
+                            } , 500);							
+        setTimeout(() => { clearInterval(timer); alert("stop"); }, document.attitude.time.value*1000);
+
 }
 
-function button_press(id, ev){
-    let direction = button_id_to_direction(id);
-    if (direction == ''){
-        console.log(`Could not translate button id: ${id} to an understandable direction`)
-        return 1
-    }
-    ws_send({event: "direction_press", data: direction, button_event: ev})
-    direction_trigger(id, 'press')
 
-}
-function button_release(id, ev){
-    let direction = button_id_to_direction(id);
-    if (direction == ''){
-        console.log(`Could not translate button id: ${id} to an understandable direction`)
-        return 1
-    }
-    ws_send({event: "direction_release", data: direction, button_event: ev})
-    direction_trigger(id, 'release')
+
+
+function rollLeft(roll, step){	
+    r = parseFloat(step)+parseFloat(roll);
+    att(document.attitude.yaw.value, document.attitude.pitch.value, r);
+    document.attitude.roll.value = r;
 }
 
-/// sets an event listener func for each event for each elements
-function AddMultiEventListener(arg_elements, arg_events, func){
-    arg_elements.split(' ').forEach(el => arg_events.split(' ').forEach(ev => document.getElementById(el).addEventListener(ev, function() {
-        func(el, ev)
-    })))
+function rollRight(roll, step){
+    r = parseFloat(roll)-parseFloat(step);
+    att(document.attitude.yaw.value, document.attitude.pitch.value, r);
+    document.attitude.roll.value = r;
 }
 
-if (isMobile()){
-    AddMultiEventListener('button_up button_left button_down button_right', 'touchstart', button_press)
-    AddMultiEventListener('button_up button_left button_down button_right', 'touchend', button_release)
-}else{
-    AddMultiEventListener('button_up button_left button_down button_right', 'mousedown', button_press)
-    AddMultiEventListener('button_up button_left button_down button_right', 'mouseup mouseleave', button_release)
+function pitchDown(pitch, step){
+    p = parseFloat(pitch)-parseFloat(step);
+    att(document.attitude.yaw.value, p, document.attitude.roll.value);
+    document.attitude.pitch.value = p;
+}
+
+function pitchUp(pitch, step){
+    p = parseFloat(pitch)+parseFloat(step);
+    att(document.attitude.yaw.value, p, document.attitude.roll.value);
+    document.attitude.pitch.value = p;
+}
+
+function yawLeft(yaw, step){
+    y = parseFloat(step)+parseFloat(yaw);
+    att(y, document.attitude.pitch.value, document.attitude.roll.value);
+    document.attitude.yaw.value = y;
+}
+
+function yawRight(yaw, step){
+    y = parseFloat(yaw)-parseFloat(step);
+    att(y, document.attitude.pitch.value, document.attitude.roll.value);
+    document.attitude.yaw.value = y;
 }
 
 

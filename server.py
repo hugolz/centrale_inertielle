@@ -13,7 +13,7 @@ import json
 import os
 
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
-DISPATCH_TIMEOUT_MS = 750
+DISPATCH_TIMEOUT_MS = 400
 
 define('port', type=int, default=8888)
 
@@ -81,9 +81,11 @@ def dispatch_to_clients():
     for client in ClientWS.clients:
         client.write_message(json.dumps({
             "event": "fdm",
-            "roll": flightgear.fdm_phi_rad,
-            "pitch": flightgear.fdm_phi_rad,
-            "yaw": flightgear.fdm_theta_rad,
+            "data": {
+                "roll": flightgear.fdm_phi_rad,
+                "pitch": flightgear.fdm_phi_rad,
+                "yaw": flightgear.fdm_theta_rad,
+            }
         }))
     ClientWS.client_list_mutex.release()
 
