@@ -12,7 +12,7 @@ import datetime
 import json
 import os
 
-CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "\\static"
+CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
 DISPATCH_TIMEOUT_MS = 750
 
 define('port', type=int, default=8888)
@@ -46,23 +46,22 @@ class ClientWS(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self):
-        print(f"[{self.request.remote_ip}] connected")
+        print(f"[DEBUG] {self.request.remote_ip} connected")
 
         with ClientWS.client_list_mutex:
             ClientWS.clients.append(self)
             self.report_clients()
 
     def on_message(self, message):
-        print(f"[{self.request.remote_ip}]:", message)
+        print(f"[DEBUG] {self.request.remote_ip} sent:", message)
         msg = json.loads(message)  # todo: safety?
-        print(f"{message}\n{msg}")
         with ClientWS.client_list_mutex:
             for c in ClientWS.clients:
                 if c != self:
                     c.write_message(msg)
 
     def on_close(self):
-        print(f"[{self.request.remote_ip}] disconnected")
+        print(f"[INFO] {self.request.remote_ip} has disconnected from server")
 
         with ClientWS.client_list_mutex:
             ClientWS.clients.remove(self)
@@ -70,27 +69,25 @@ class ClientWS(tornado.websocket.WebSocketHandler):
 
     # The asumption for this function is that the mutex has been locked by the calling function
     def report_clients(self):
-        print(f"Running {len(self.clients)} clients")
+        print(f"[INFO] Server has currently {len(self.clients)} websockets open")
 
 
 def dispatch_to_clients():
-    import random
-    print("dispatch")
-    ClientWS.client_list_mutex.acquire(timeout=DISPATCH_TIMEOUT_MS/60)
-    button_value = bool(random.getrandbits(1))
-    for client in ClientWS.clients:
-        if button_value:
-            client.write_message(json.dumps(
-                {"event": "direction_press", "data": "Left", "button_event": "mousedown"}))
-        else:
-            client.write_message(json.dumps(
-                {"event": "direction_release", "data": "Left", "button_event": "mouseup"}))
-    ClientWS.client_list_mutex.release()
-
-    print(f"{flightgear.last_fdm}")
-
+    # This is not multithreaded, therefore there is no problem having an exec time > DISPATCH_TIMEOUT_MS
     tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(
         00, 00, 00, DISPATCH_TIMEOUT_MS), dispatch_to_clients)
+
+    ClientWS.client_list_mutex.acquire(timeout=DISPATCH_TIMEOUT_MS/60)
+    for client in ClientWS.clients:
+        client.write_message(json.dumps({
+            "event": "fdm",
+            "roll": flightgear.fdm_phi_rad,
+            "pitch": flightgear.fdm_phi_rad,
+            "yaw": flightgear.fdm_theta_rad,
+        }))
+    ClientWS.client_list_mutex.release()
+
+    print(f"{flightgear.fdm_phi_rad}")
 
 
 def start():

@@ -48,7 +48,7 @@ function open_ws(msg){
 
         ws.onmessage = function (evt){
             msg = JSON.parse(evt.data)
-            console.log(`Receiving ${msg}`);
+            console.log(`Receiving ${JSON.stringify(msg)}`);
             
             if( msg.event == "direction_press" ){
                 let button_id = direction_to_button_id(msg.data);

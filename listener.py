@@ -11,7 +11,7 @@ listener = None
 
 def on_press(key):
     global last_pressed
-    last_pressed = key
+    # last_pressed = key
 
     # The default format is weird, let's use strings without type identifier
     if type(key) == Key:
@@ -42,7 +42,7 @@ def start():
         on_press=on_press,
         on_release=on_release)
     listener.start()
-    print("Listener start")
+    print("[INFO] Listener as started")
 
 
 def start_threaded():
@@ -53,4 +53,4 @@ def start_threaded():
 def stop():
     global listener
     listener.stop()
-    print("Listener has been stopped")
+    print("[INFO] Listener has been stopped")

@@ -120,6 +120,6 @@ def read_one(serial_port) -> Data:
             temp = parse_float(line, 'Temperature:')
 
         else:
-            print(f"Could not understand: {line}")
+            print(f"[WARN] serial reader module failled to parse: {line}")
 
     return data

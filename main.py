@@ -5,6 +5,11 @@ import listener
 import server
 import time
 import sys
+"""
+Notes:
+    I could add a real logger like the one in https://github.com/bowarc/python_libs
+    but it might be overkill
+"""
 
 
 def main():
