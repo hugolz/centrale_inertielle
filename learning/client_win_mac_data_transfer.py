@@ -7,8 +7,8 @@ Goal:
     send what your receive from the card
 """
 
-HOST = '127.0.0.1'    # The remote host
-PORT = 50021  # The same port as used by the server
+HOST = '192.168.133.206'    # The remote host
+PORT = 1509  # The same port as used by the server
 BUF_SIZE = 1024
 
 
