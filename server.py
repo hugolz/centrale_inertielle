@@ -13,7 +13,7 @@ import json
 import os
 
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
-DISPATCH_TIMEOUT_MS = 400
+DISPATCH_TIMEOUT_MS = 200
 
 define('port', type=int, default=8888)
 
@@ -38,8 +38,6 @@ class ClientCss(tornado.web.RequestHandler):
 
 
 class ClientWS(tornado.websocket.WebSocketHandler):
-    # im bored so let's fix this race condition
-    client_list_mutex = threading.Lock()
     clients = []
 
     def check_origin(self, origin):
@@ -48,24 +46,21 @@ class ClientWS(tornado.websocket.WebSocketHandler):
     def open(self):
         print(f"[DEBUG] {self.request.remote_ip} connected")
 
-        with ClientWS.client_list_mutex:
-            ClientWS.clients.append(self)
-            self.report_clients()
+        ClientWS.clients.append(self)
+        self.report_clients()
 
     def on_message(self, message):
         print(f"[DEBUG] {self.request.remote_ip} sent:", message)
         msg = json.loads(message)  # todo: safety?
-        with ClientWS.client_list_mutex:
-            for c in ClientWS.clients:
-                if c != self:
-                    c.write_message(msg)
+        for c in ClientWS.clients:
+            if c != self:
+                c.write_message(msg)
 
     def on_close(self):
         print(f"[INFO] {self.request.remote_ip} has disconnected from server")
 
-        with ClientWS.client_list_mutex:
-            ClientWS.clients.remove(self)
-            self.report_clients()
+        ClientWS.clients.remove(self)
+        self.report_clients()
 
     # The asumption for this function is that the mutex has been locked by the calling function
     def report_clients(self):
@@ -77,7 +72,6 @@ def dispatch_to_clients():
     tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(
         00, 00, 00, DISPATCH_TIMEOUT_MS), dispatch_to_clients)
 
-    ClientWS.client_list_mutex.acquire(timeout=DISPATCH_TIMEOUT_MS/60)
     for client in ClientWS.clients:
         client.write_message(json.dumps({
             "event": "fdm",
@@ -87,7 +81,6 @@ def dispatch_to_clients():
                 "roll": flightgear.fdm_phi_rad,
             }
         }))
-    ClientWS.client_list_mutex.release()
 
 
 def start():

@@ -46,9 +46,9 @@ def start():
 
                 last = listener.get_last_key()
                 read_data = serial_reader.read_one(serial_port)
-                if last == "esc":
-                    break
-                elif last == "s":
+                # if last == "esc":
+                # break
+                if last == "s":
                     print("Save")
                     base_data = read_data
                     fdm_psi_rad = 0.0
