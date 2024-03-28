@@ -82,14 +82,12 @@ def dispatch_to_clients():
         client.write_message(json.dumps({
             "event": "fdm",
             "data": {
+                "yaw": flightgear.fdm_psi_rad,
+                "pitch": flightgear.fdm_theta_rad,
                 "roll": flightgear.fdm_phi_rad,
-                "pitch": flightgear.fdm_phi_rad,
-                "yaw": flightgear.fdm_theta_rad,
             }
         }))
     ClientWS.client_list_mutex.release()
-
-    print(f"{flightgear.fdm_phi_rad}")
 
 
 def start():

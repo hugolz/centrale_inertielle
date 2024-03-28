@@ -10,9 +10,9 @@ import copy
 import time
 import json
 
-fdm_phi_rad = 0.0
 fdm_psi_rad = 0.0
 fdm_theta_rad = 0.0
+fdm_phi_rad = 0.0
 
 running = False
 
@@ -21,19 +21,17 @@ def fdm_callback(fdm_data, event_pipe):
     # global last_fdm
 
     if event_pipe.child_poll():
-        phi_rad_child, psi_rad_child, theta_rad_child, = event_pipe.child_recv()  # unpack tuple
+        psi_rad_child, theta_rad_child, phi_rad_child, = event_pipe.child_recv()  # unpack tuple
         # set only the data that we need to
-        fdm_data['theta_rad'] = theta_rad_child  # we can force our own values
-        fdm_data['psi_rad'] = psi_rad_child  # we can force our own values
-        fdm_data['phi_rad'] = phi_rad_child  # we can force our own values
-        # print("fdm update ")
-        # fdm_data.alt_m = fdm_data.alt_m + phi_rad_child  # or just make a relative change
+        fdm_data['psi_rad'] = psi_rad_child
+        fdm_data['theta_rad'] = theta_rad_child
+        fdm_data['phi_rad'] = phi_rad_child
 
-    return fdm_data  # return the whole structure
+    return fdm_data
 
 
 def start():
-    global fdm_phi_rad, fdm_psi_rad, fdm_theta_rad
+    global fdm_psi_rad, fdm_theta_rad, fdm_phi_rad
     base_data = serial_reader.Data()
 
     fdm_conn = FDMConnection(fdm_version=24)
@@ -48,50 +46,45 @@ def start():
 
                 last = listener.get_last_key()
                 read_data = serial_reader.read_one(serial_port)
-
                 if last == "esc":
                     break
                 elif last == "s":
                     print("Save")
                     base_data = read_data
-                    fdm_phi_rad = 0.0
                     fdm_psi_rad = 0.0
                     fdm_theta_rad = 0.0
+                    fdm_phi_rad = 0.0
 
                 data = base_data - read_data
+                # print(fdm_psi_rad,
+                # fdm_theta_rad,
+                # fdm_phi_rad)
                 # print(f"[DEBUG] Received data: {data}")
 
-                # Flightgear
-                # phi_rad_parent += data.rz / 10
-                # send tuple
+                precision = 100
+                addpsi = round(data.rx / precision, 3) * precision
+                addtheta = round(data.ry / precision, 3) * precision
+                addphi = round(data.rz / precision, 3) * precision
+                print(addpsi,
+                      addtheta,
+                      addphi)
 
-                addphi = round(data.rz / 100, 3)*30
-                addpsi = round(data.rx / 100, 3)*30
-                addtheta = round(data.ry / 100, 3)*30
-                fdm_phi_rad += addphi
-                fdm_psi_rad += addpsi
-                fdm_theta_rad += addtheta
+                sensibility = 0.3
+                fdm_psi_rad += -addpsi * sensibility
+                fdm_theta_rad += addtheta * sensibility
+                fdm_phi_rad += addphi * sensibility
                 fdm_event_pipe.parent_send(
-                    (fdm_phi_rad, fdm_psi_rad, fdm_theta_rad,))
+                    (fdm_psi_rad, fdm_theta_rad, fdm_phi_rad,))
     except Exception as e:
         print(f"[ERROR] Flightgear module encountered an error: {e}")
     fdm_conn.stop()
     print("[INFO] Flightgear thread has stopped")
 
 
-def d():
-    # global last_fdm
-    import time
-    while running:
-        # print(last_fdm)
-        time.sleep(0.1)
-
-
 def start_threaded():
     global running
     running = True
     threading.Thread(target=start).start()
-    threading.Thread(target=d).start()
 
 
 def stop():
