@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from logger import debug, info, warn, error, critical
+
+
 class Data:
     def __init__(self):
         self.ax = 0.
@@ -44,7 +47,7 @@ def parse_float(line: str, trigger: str) -> str:
 
     index = line.find(trigger)
     if index == -1:
-        print(f"[ERROR] Could not parse {trigger}")
+        error(f"Could not parse {trigger}")
         return None
 
     index += len(trigger) + 2
@@ -94,7 +97,7 @@ def read_one(serial_port) -> Data:
             break
 
         if line.startswith("Acceleration"):
-            # print(f"accel: {line}")
+            # debug(f"accel: {line}")
 
             x = parse_float(line, 'X')
             y = parse_float(line, 'Y')
@@ -105,7 +108,7 @@ def read_one(serial_port) -> Data:
             data.az = z
 
         elif line.startswith("Rotation"):
-            # print(f"rota: {line}")
+            # debug(f"rota: {line}")
 
             x = parse_float(line, 'X')
             y = parse_float(line, 'Y')
@@ -116,10 +119,10 @@ def read_one(serial_port) -> Data:
             data.rz = z
 
         elif line.startswith("Temperature"):
-            # print(f"temp: {line}")
+            # debug(f"temp: {line}")
             temp = parse_float(line, 'Temperature:')
 
         else:
-            print(f"[WARN] serial reader module failled to parse: {line}")
+            warn(f" serial reader module failled to parse: {line}")
 
     return data

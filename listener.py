@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
+
 from pynput.keyboard import Key, Listener, _win32
+from logger import debug, info, warn, error, critical
 import copy
 KeyCode = _win32.KeyCode
 
@@ -42,7 +44,7 @@ def start():
         on_press=on_press,
         on_release=on_release)
     listener.start()
-    print("[INFO] Listener as started")
+    info("Listener as started")
 
 
 def start_threaded():
@@ -53,4 +55,4 @@ def start_threaded():
 def stop():
     global listener
     listener.stop()
-    print("[INFO] Listener has been stopped")
+    info("Listener has been stopped")

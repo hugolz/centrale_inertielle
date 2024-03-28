@@ -2,17 +2,19 @@
 
 import flightgear
 import listener
+import logger
 import server
 import time
 import sys
 """
 Notes:
-    I could add a real logger like the one in https://github.com/bowarc/python_libs
-    but it might be overkill
 """
 
 
 def main():
+    # The logger is really not great but it's fine for now
+    logger.init_global(custom_exception_hook=True)
+
     listener.start_threaded()
 
     flightgear.start_threaded()

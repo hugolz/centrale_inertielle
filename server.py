@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from tornado.options import options, define, parse_command_line
+from logger import debug, info, warn, error, critical
 import tornado.httpserver
 import tornado.websocket
 import tornado.ioloop
@@ -13,7 +14,7 @@ import json
 import os
 
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
-DISPATCH_TIMEOUT_MS = 200
+DISPATCH_TIMEOUT_MS = 100
 
 define('port', type=int, default=8888)
 
@@ -44,27 +45,27 @@ class ClientWS(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self):
-        print(f"[DEBUG] {self.request.remote_ip} connected")
+        debug(f"{self.request.remote_ip} connected")
 
         ClientWS.clients.append(self)
         self.report_clients()
 
     def on_message(self, message):
-        print(f"[DEBUG] {self.request.remote_ip} sent:", message)
+        debug(f"{self.request.remote_ip} sent: {message}")
         msg = json.loads(message)  # todo: safety?
         for c in ClientWS.clients:
             if c != self:
                 c.write_message(msg)
 
     def on_close(self):
-        print(f"[INFO] {self.request.remote_ip} has disconnected from server")
+        info(f"{self.request.remote_ip} has disconnected from server")
 
         ClientWS.clients.remove(self)
         self.report_clients()
 
     # The asumption for this function is that the mutex has been locked by the calling function
     def report_clients(self):
-        print(f"[INFO] Server has currently {len(self.clients)} websockets open")
+        info(f"Server has currently {len(self.clients)} websockets open")
 
 
 def dispatch_to_clients():

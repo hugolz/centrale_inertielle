@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from logger import debug, info, warn, error, critical
 from flightgear_python.fg_if import FDMConnection
 import serial_reader
 import threading
@@ -56,18 +57,13 @@ def start():
                     fdm_phi_rad = 0.0
 
                 data = base_data - read_data
-                # print(fdm_psi_rad,
-                # fdm_theta_rad,
-                # fdm_phi_rad)
-                # print(f"[DEBUG] Received data: {data}")
+                # debug(f"{fdm_psi_rad},{fdm_theta_rad},{fdm_phi_rad}")
+                # debug(f"Received data: {data}")
 
                 precision = 100
                 addpsi = round(data.rx / precision, 3) * precision
                 addtheta = round(data.ry / precision, 3) * precision
                 addphi = round(data.rz / precision, 3) * precision
-                print(addpsi,
-                      addtheta,
-                      addphi)
 
                 sensibility = 0.3
                 fdm_psi_rad += -addpsi * sensibility
@@ -76,9 +72,9 @@ def start():
                 fdm_event_pipe.parent_send(
                     (fdm_psi_rad, fdm_theta_rad, fdm_phi_rad,))
     except Exception as e:
-        print(f"[ERROR] Flightgear module encountered an error: {e}")
+        error(f"Flightgear module encountered an error: {e}")
     fdm_conn.stop()
-    print("[INFO] Flightgear thread has stopped")
+    info("Flightgear thread has stopped")
 
 
 def start_threaded():
