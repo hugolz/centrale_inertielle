@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import flightgear
+import compass
 import listener
 import logger
 import server
@@ -18,6 +19,8 @@ def main():
     listener.start_threaded()
 
     flightgear.start_threaded()
+    
+    compass.start_threaded()
 
     server.start()
 
@@ -30,4 +33,5 @@ if __name__ == "__main__":
 
     # Cleanup
     flightgear.stop()
+    compass.stop()
     listener.stop()

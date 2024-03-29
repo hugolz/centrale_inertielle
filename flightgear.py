@@ -42,11 +42,11 @@ def start():
 
     try:
         with serial.Serial(port="COM6", baudrate=115200, timeout=1, writeTimeout=1) as serial_port:
-            serial_reader.wait_for_init(serial_port)
+            serial_reader.wait_for_init_gy(serial_port)
             while running:
 
                 last = listener.get_last_key()
-                read_data = serial_reader.read_one(serial_port)
+                read_data = serial_reader.read_one_gy(serial_port)
                 # if last == "esc":
                 # break
                 if last == "s":
