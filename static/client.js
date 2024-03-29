@@ -1,6 +1,6 @@
 let PRESS_COLOR = 'red';
 // This is the local addres of the machine that i use to dev this, you'll need to change it
-let WS_ADDRESS = '192.168.56.1' 
+let WS_ADDRESS = '172.16.126.231' 
 
 let websocket = false;
 
@@ -74,16 +74,29 @@ function open_ws(msg) {
 }
 
 
+let slider = document.getElementById("myRange");
+let calib = slider.value/10; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function() {
+  calib = parseFloat(this.value);
+}
+
+
 function att(yaw, pitch, roll) {	
     console.log(yaw + " " + pitch + " " + roll)
+    document.getElementById("pitchDisplay").innerHTML = "<br>" + pitch
+    document.getElementById("rollDisplay").innerHTML = "<br>" + roll
+
     document.querySelector("#Pitch").setAttribute("transform", "translate(" + yaw + "," + pitch + ")");
     document.querySelector("#Roll").setAttribute("transform", "rotate(" + roll + ", 256.0, 256.0)");
 }
 
-function azimuth(azim) {	
-    azim = float(azim)  
-    document.querySelector("#Card").setAttribute("transform", "rotate(" + azim + " 256.0 256.0 ) ");
-    console.log(azim)
+function azimuth(azim) {
+    calib < 0 ? azim -=(-calib): azim+= calib 
+    document.querySelector("#Card").setAttribute("transform", "rotate(" + -azim + " 256.0 256.0 ) ");
+    azim <= 0 ? azim += 360: azim = azim
+    document.getElementById("headingDisplay").innerHTML = "<br>" + azim + '°';
 }
 
 function altitude(alt) {
@@ -146,5 +159,6 @@ function yawRight(yaw, step) {
     att(y, document.attitude.pitch.value, document.attitude.roll.value);
     document.attitude.yaw.value = y;
 }
+
 
 
