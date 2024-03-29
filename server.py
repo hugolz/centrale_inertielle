@@ -8,6 +8,7 @@ import tornado.ioloop
 import tornado.wsgi
 import tornado.web
 import flightgear
+import compass
 import threading
 import datetime
 import json
@@ -80,6 +81,7 @@ def dispatch_to_clients():
                 "yaw": flightgear.fdm_psi_rad,
                 "pitch": flightgear.fdm_theta_rad,
                 "roll": flightgear.fdm_phi_rad,
+                "azimuth": compass.azimuth,
             }
         }))
 

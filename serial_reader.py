@@ -60,6 +60,24 @@ def parse_float(line: str, trigger: str) -> str:
         index += 1
     return round(float(s), 3)
 
+def parse_int(line : str, trigger: str):
+    az = ""
+
+    index = line.find(trigger)
+    if index == -1:
+        error("Error parsing line in int")
+        return None
+
+    index += len(trigger)
+
+    while True:
+        # check if we're stil reading int characters
+        if line[index] not in "1234567890-":
+            break
+        s += (line[index])
+        index += 1
+    return int(s)
+
 
 def sanitize_line(line_bytes) -> str:
     line = line_bytes.decode('UTF-8')
@@ -74,7 +92,7 @@ def wait_for(trigger: str, serial_port):
             break
 
 
-def wait_for_init(serial_port):
+def wait_for_init_gy(serial_port):
     wait_for("", serial_port)
     wait_for("Adafruit MPU6050 test!", serial_port)
     wait_for("MPU6050 Found!", serial_port)
@@ -84,7 +102,7 @@ def wait_for_init(serial_port):
     wait_for("", serial_port)
 
 
-def read_one(serial_port) -> Data:
+def read_one_gy(serial_port) -> Data:
     if not serial_port.isOpen():
         return None
 
@@ -126,3 +144,14 @@ def read_one(serial_port) -> Data:
             warn(f" serial reader module failled to parse: {line}")
 
     return data
+
+def read_one_compass(serial_port):
+    if not serial_port.isOpen():
+        return None
+    line = sanitize_line(serial_port.readline())
+
+    if line == "":
+        return
+    else: 
+        return parse_int(line, "A: ")
+

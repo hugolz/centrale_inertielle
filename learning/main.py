@@ -47,7 +47,7 @@ def main():
         while True:
 
             last = listener.get_last_key()
-            read_data = serial_reader.read_one(port_serie)
+            read_data = serial_reader.read_one_gy(port_serie)
 
             if last == "esc":
                 break
