@@ -31,20 +31,6 @@ function ws_send(msg) {
 }
 
 
-function roll(data) {
-    return data;
-}
-
-function pitch(data) {
-    return data;
-}
-
-function yaw(data) {
-    return data;
-}
-
-
-
 function open_ws(msg) {
     if (typeof (ws) == 'undefined' || ws.readyState === undefined || ws.readyState > 1) {
         // websocket on same server with address /websocket
@@ -67,12 +53,11 @@ function open_ws(msg) {
                 let yaw = (msg.data.yaw) * 180 / pi;
                 let pitch = (msg.data.pitch) * 180 / pi;
                 let roll = (msg.data.roll) * 180 / pi;
+                let azim = (msg.data.azimuth)
                 att(yaw, pitch, roll);
-                // if (roll != '' && pitch != '' && yaw != ''){
-                // }else if (roll == '' || pitch != '' && yaw != ''){
-                //     att(yaw, pitch, roll);
-                //     console.log(`Could not set the right attitude with data : ${msg.data}`)
-                // }
+                azimuth(azim)
+                console.log("ok")
+
             } else {
                 console.log('Unknown event: ' + msg.event)
             }
@@ -95,9 +80,10 @@ function att(yaw, pitch, roll) {
     document.querySelector("#Roll").setAttribute("transform", "rotate(" + roll + ", 256.0, 256.0)");
 }
 
-function card(cap) {	
-    cap = -cap;
-    document.querySelector("#Card").setAttribute("transform", "rotate(" + cap + " 256.0 256.0 ) ");
+function azimuth(azim) {	
+    azim = float(azim)  
+    document.querySelector("#Card").setAttribute("transform", "rotate(" + azim + " 256.0 256.0 ) ");
+    console.log(azim)
 }
 
 function altitude(alt) {
@@ -113,6 +99,7 @@ function altitude(alt) {
     document.querySelector("#DixMille").setAttribute("transform", "rotate(" + dm + " 256.0 256.0 ) ");
     document.alt.alt.value = alt;
 }
+
     
 function demo() {	
     var r = document.attitude.roll.value;		

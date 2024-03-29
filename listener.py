@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 
-from pynput.keyboard import Key, Listener, _win32
+from pynput.keyboard import Key, Listener
 from logger import debug, info, warn, error, critical
 import copy
-KeyCode = _win32.KeyCode
 
 last_pressed = None
 running = False

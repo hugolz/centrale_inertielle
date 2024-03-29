@@ -68,15 +68,16 @@ def parse_int(line : str, trigger: str):
         error("Error parsing line in int")
         return None
 
-    index += len(trigger)
+    index += len(trigger)+2
 
     while True:
+
         # check if we're stil reading int characters
-        if line[index] not in "1234567890-":
+        if index > len(line)-1  or line[index] not in "1234567890-":
             break
-        s += (line[index])
+        az += (line[index])
         index += 1
-    return int(s)
+    return int(az)
 
 
 def sanitize_line(line_bytes) -> str:
@@ -151,7 +152,8 @@ def read_one_compass(serial_port):
     line = sanitize_line(serial_port.readline())
 
     if line == "":
-        return
+        return read_one_compass(serial_port)
+    
     else: 
-        return parse_int(line, "A: ")
+        return parse_int(line, "A")
 
