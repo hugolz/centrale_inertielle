@@ -22,19 +22,19 @@ define('port', type=int, default=8888)
 
 class MainHtml(tornado.web.RequestHandler):
     def get(self):
-        self.render(f"{CLIENT_FILES_PATH}\\client.html")
+        self.render(f"{CLIENT_FILES_PATH}/client.html")
 
 
 class ClientJs(tornado.web.RequestHandler):
     def get(self):
-        with open(f"{CLIENT_FILES_PATH}\\client.js", "r") as f:
+        with open(f"{CLIENT_FILES_PATH}/client.js", "r") as f:
             self.set_header("Content-Type", 'text/javascript; charset="utf-8"')
             self.write(f.read())
 
 
 class ClientCss(tornado.web.RequestHandler):
     def get(self):
-        with open(f"{CLIENT_FILES_PATH}\\style.css", "r") as f:
+        with open(f"{CLIENT_FILES_PATH}/style.css", "r") as f:
             self.set_header("Content-Type", 'text/css; charset="utf-8"')
             self.write(f.read())
 

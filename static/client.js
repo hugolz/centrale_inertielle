@@ -1,6 +1,6 @@
 let PRESS_COLOR = 'red';
 // This is the local addres of the machine that i use to dev this, you'll need to change it
-let WS_ADDRESS = '192.168.56.1' 
+let WS_ADDRESS = '172.16.126.231' 
 
 let websocket = false;
 
@@ -31,20 +31,6 @@ function ws_send(msg) {
 }
 
 
-function roll(data) {
-    return data;
-}
-
-function pitch(data) {
-    return data;
-}
-
-function yaw(data) {
-    return data;
-}
-
-
-
 function open_ws(msg) {
     if (typeof (ws) == 'undefined' || ws.readyState === undefined || ws.readyState > 1) {
         // websocket on same server with address /websocket
@@ -67,12 +53,11 @@ function open_ws(msg) {
                 let yaw = (msg.data.yaw) * 180 / pi;
                 let pitch = (msg.data.pitch) * 180 / pi;
                 let roll = (msg.data.roll) * 180 / pi;
+                let azim = (msg.data.azimuth)
                 att(yaw, pitch, roll);
-                // if (roll != '' && pitch != '' && yaw != ''){
-                // }else if (roll == '' || pitch != '' && yaw != ''){
-                //     att(yaw, pitch, roll);
-                //     console.log(`Could not set the right attitude with data : ${msg.data}`)
-                // }
+                azimuth(azim)
+                console.log("ok")
+
             } else {
                 console.log('Unknown event: ' + msg.event)
             }
@@ -89,15 +74,29 @@ function open_ws(msg) {
 }
 
 
+let slider = document.getElementById("myRange");
+let calib = slider.value/10; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function() {
+  calib = parseFloat(this.value);
+}
+
+
 function att(yaw, pitch, roll) {	
     console.log(yaw + " " + pitch + " " + roll)
+    document.getElementById("pitchDisplay").innerHTML = "<br>" + pitch
+    document.getElementById("rollDisplay").innerHTML = "<br>" + roll
+
     document.querySelector("#Pitch").setAttribute("transform", "translate(" + yaw + "," + pitch + ")");
     document.querySelector("#Roll").setAttribute("transform", "rotate(" + roll + ", 256.0, 256.0)");
 }
 
-function card(cap) {	
-    cap = -cap;
-    document.querySelector("#Card").setAttribute("transform", "rotate(" + cap + " 256.0 256.0 ) ");
+function azimuth(azim) {
+    calib < 0 ? azim -=(-calib): azim+= calib 
+    document.querySelector("#Card").setAttribute("transform", "rotate(" + -azim + " 256.0 256.0 ) ");
+    azim <= 0 ? azim += 360: azim = azim
+    document.getElementById("headingDisplay").innerHTML = "<br>" + azim + '°';
 }
 
 function altitude(alt) {
@@ -113,6 +112,7 @@ function altitude(alt) {
     document.querySelector("#DixMille").setAttribute("transform", "rotate(" + dm + " 256.0 256.0 ) ");
     document.alt.alt.value = alt;
 }
+
     
 function demo() {	
     var r = document.attitude.roll.value;		
@@ -159,5 +159,6 @@ function yawRight(yaw, step) {
     att(y, document.attitude.pitch.value, document.attitude.roll.value);
     document.attitude.yaw.value = y;
 }
+
 
 

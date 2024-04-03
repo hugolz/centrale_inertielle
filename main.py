@@ -18,7 +18,7 @@ def main():
 
     listener.start_threaded()
 
-    flightgear.start_threaded()
+    #flightgear.start_threaded()
     
     compass.start_threaded()
 
