@@ -16,6 +16,10 @@ fdm_theta_rad = 0.0
 fdm_phi_rad = 0.0
 
 running = False
+"""
+Flightgear startup options
+    --native-fdm=socket,out,30,localhost,5501,udp --native-fdm=socket,in,30,localhost,5502,udp --fdm=null --max-fps=30 --altitude=3000
+"""
 
 
 def fdm_callback(fdm_data, event_pipe):
@@ -32,7 +36,8 @@ def fdm_callback(fdm_data, event_pipe):
 
 
 def start():
-    global fdm_psi_rad, fdm_theta_rad, fdm_phi_rad
+    global fdm_psi_rad, fdm_theta_rad, fdm_phi_rad, running
+    running = True
     base_data = serial_reader.Data()
 
     fdm_conn = FDMConnection(fdm_version=24)
@@ -86,3 +91,9 @@ def start_threaded():
 def stop():
     global running
     running = False
+
+
+if __name__ == "__main__":
+    import logger
+    logger.init_global()
+    start()

@@ -7,7 +7,7 @@ import tornado.websocket
 import tornado.ioloop
 import tornado.wsgi
 import tornado.web
-import flightgear
+import flightgear_fdm
 import compass
 import threading
 import datetime
@@ -78,9 +78,9 @@ def dispatch_to_clients():
         client.write_message(json.dumps({
             "event": "fdm",
             "data": {
-                "yaw": flightgear.fdm_psi_rad,
-                "pitch": flightgear.fdm_theta_rad,
-                "roll": flightgear.fdm_phi_rad,
+                "yaw": flightgear_fdm.fdm_psi_rad,
+                "pitch": flightgear_fdm.fdm_theta_rad,
+                "roll": flightgear_fdm.fdm_phi_rad,
                 "azimuth": compass.azimuth,
             }
         }))

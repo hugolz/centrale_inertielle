@@ -1,6 +1,6 @@
 let PRESS_COLOR = 'red';
 // This is the local addres of the machine that i use to dev this, you'll need to change it
-let WS_ADDRESS = '172.16.126.231' 
+let WS_ADDRESS = '192.168.56.1'
 
 let websocket = false;
 
@@ -16,10 +16,8 @@ $(document).ready(function () {
     ws_send(msg);
 });
 
-
-
 function ws_send(msg) {
-    if (websocket == true) {
+    if (websocket) {
         // if ws is not open call open_ws, which will call ws_send back
         if (typeof (ws) == 'undefined' || ws.readyState === undefined || ws.readyState > 1) {
             open_ws(msg);
@@ -29,7 +27,6 @@ function ws_send(msg) {
         }
     }
 }
-
 
 function open_ws(msg) {
     if (typeof (ws) == 'undefined' || ws.readyState === undefined || ws.readyState > 1) {
@@ -63,7 +60,6 @@ function open_ws(msg) {
             }
         };
 
-
         ws.onclose = function () { 
             // websocket is closed, re-open
             console.log("Connection is closed... reopen");
@@ -73,7 +69,6 @@ function open_ws(msg) {
     }
 }
 
-
 let slider = document.getElementById("myRange");
 let calib = slider.value/10; // Display the default slider value
 
@@ -81,7 +76,6 @@ let calib = slider.value/10; // Display the default slider value
 slider.oninput = function() {
   calib = parseFloat(this.value);
 }
-
 
 function att(yaw, pitch, roll) {	
     console.log(yaw + " " + pitch + " " + roll)
@@ -113,7 +107,6 @@ function altitude(alt) {
     document.alt.alt.value = alt;
 }
 
-    
 function demo() {	
     var r = document.attitude.roll.value;		
     var timer = setInterval(() => {
