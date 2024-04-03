@@ -30,9 +30,11 @@ def ctrls_callback(ctrls_data, event_pipe):
         #  this on the backend
 
         gear_down_child_state = gear_down_child
-        ctrls_data.aileron = data.rx
-        ctrls_data.elevator = data.ry
-        ctrls_data.rudder = data.rz
+
+        sensibility = 0.1
+        ctrls_data.aileron = data.rz * sensibility
+        ctrls_data.elevator = -data.ry * sensibility
+        ctrls_data.rudder = data.rx * sensibility
     # ctrls_data.gear_handle = 'down' if gear_down_child_state else 'up'
 
     # print(ctrls_data)
@@ -40,8 +42,10 @@ def ctrls_callback(ctrls_data, event_pipe):
     # ctrls_data.aileron = math.sin(time.time())
     # ctrls_data.elevator = math.sin(time.time())
     # ctrls_data.rudder = math.sin(time.time())
-    ctrls_data.throttle[0] = (math.sin(time.time()) / 2) + 0.5
-    ctrls_data.throttle[1] = (-math.sin(time.time()) / 2) + 0.5
+    # ctrls_data.throttle[0] = (math.sin(time.time()) / 2) + 0.5
+    # ctrls_data.throttle[1] = (-math.sin(time.time()) / 2) + 0.5
+    ctrls_data.throttle[0] = 1 
+    # ctrls_data.throttle[1] = 1 
     return ctrls_data  # return the whole structure
 
 
@@ -53,6 +57,8 @@ def start():
     ctrls_conn.start()  # Start the Ctrls RX/TX loop
 
     base_data = serial_reader.Data()
+
+    accumulated_data = serial_reader.Data()
 
     gear_down_parent = True
     time.sleep(2)
@@ -68,17 +74,17 @@ def start():
                 if last == "s":
                     print("Save")
                     base_data = read_data
-                    fdm_psi_rad = 0.0
-                    fdm_theta_rad = 0.0
-                    fdm_phi_rad = 0.0
+                    accumulated_data = serial_reader.Data()
 
                 data = base_data - read_data
                 # debug(f"{fdm_psi_rad},{fdm_theta_rad},{fdm_phi_rad}")
                 debug(f"Received data: {data}")
 
+                accumulated_data += data
+
                 # could also do `ctrls_conn.event_pipe.parent_send` so you just need to pass around `ctrls_conn`
                 ctrls_event_pipe.parent_send(
-                    (gear_down_parent, data,))  # send tuple
+                    (gear_down_parent, accumulated_data,))  # send tuple
                 # gear_down_parent = not gear_down_parent  # Flip gear state
                 # time.sleep(5)
     except Exception as e:

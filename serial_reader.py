@@ -31,6 +31,25 @@ class Data:
 
         return new
 
+    def __add__(self, other):
+        new = Data()
+
+        new.ax = self.ax + other.ax
+        new.ay = self.ay + other.ay
+        new.az = self.az + other.az
+        new.rx = self.rx + other.rx
+        new.ry = self.ry + other.ry
+        new.rz = self.rz + other.rz
+
+        new.ax = round(new.ax, 3)
+        new.ay = round(new.ay, 3)
+        new.az = round(new.az, 3)
+        new.rx = round(new.rx, 3)
+        new.ry = round(new.ry, 3)
+        new.rz = round(new.rz, 3)
+
+        return new
+
     def __str__(self):
         return f"Data{{a: {{x: {self.ax}, y: {self.ay}, z: {self.az}}}, r: {{x: {self.rx}, y: {self.ry}, z: {self.rz}}}}}"
 
@@ -60,7 +79,8 @@ def parse_float(line: str, trigger: str) -> str:
         index += 1
     return round(float(s), 3)
 
-def parse_int(line : str, trigger: str):
+
+def parse_int(line: str, trigger: str):
     az = ""
 
     index = line.find(trigger)
@@ -73,7 +93,7 @@ def parse_int(line : str, trigger: str):
     while True:
 
         # check if we're stil reading int characters
-        if index > len(line)-1  or line[index] not in "1234567890-":
+        if index > len(line)-1 or line[index] not in "1234567890-":
             break
         az += (line[index])
         index += 1
@@ -146,6 +166,7 @@ def read_one_gy(serial_port) -> Data:
 
     return data
 
+
 def read_one_compass(serial_port):
     if not serial_port.isOpen():
         return None
@@ -153,7 +174,6 @@ def read_one_compass(serial_port):
 
     if line == "":
         return read_one_compass(serial_port)
-    
-    else: 
-        return parse_int(line, "A")
 
+    else:
+        return parse_int(line, "A")
