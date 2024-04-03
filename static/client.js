@@ -4,7 +4,7 @@ let WS_ADDRESS = '192.168.56.1'
 
 let websocket = false;
 
-$(document).ready(function () {
+document.addEventListener("DOMContentLoaded", function(event) {
     if ("WebSocket" in window) {
         websocket = true;
     } else {
