@@ -1,0 +1,4 @@
+tornado==6.4
+pynputpynput==1.7.6
+flightgear-python==1.6.0
+serial==0.0.97
