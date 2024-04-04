@@ -5,7 +5,7 @@ from flightgear_python.fg_if import FDMConnection
 import serial_reader
 import threading
 import listener
-import serial
+import serial 
 import server
 import copy
 import time
@@ -46,7 +46,7 @@ def start():
     fdm_conn.start()  # Start the FDM RX/TX loop
 
     try:
-        with serial.Serial(port="COM6", baudrate=115200, timeout=1, writeTimeout=1) as serial_port:
+        with serial.Serial(port="/dev/tty.usbmodem101", baudrate=115200, timeout=1, writeTimeout=1) as serial_port:
             serial_reader.wait_for_init_gy(serial_port)
             while running:
 
@@ -63,7 +63,7 @@ def start():
 
                 data = base_data - read_data
                 # debug(f"{fdm_psi_rad},{fdm_theta_rad},{fdm_phi_rad}")
-                # debug(f"Received data: {data}")
+                debug(f"Received data: {data}")
 
                 precision = 100
                 addpsi = round(data.rx / precision, 3) * precision
