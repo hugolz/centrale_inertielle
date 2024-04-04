@@ -10,6 +10,33 @@ body {
   background-color: #101930;
   color: white;
   font-family: roboto;
+
+  justify-content: center;
+}
+
+h2, p {
+  display: flex;
+  font-style: none;
+  justify-content: center;
+}
+
+.flex_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+ 
+
+.buttons {
+  margin: 20px;
+  padding: 2em;
+  border-radius: 20px;
+  font-size: 1.25em;
+}
+
+.buttons:hover {
+  opacity: 70%;
 }
 
 caption {
