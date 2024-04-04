@@ -1,0 +1,17 @@
+certifi==2024.2.2
+charset-normalizer==2.0.12
+colorama==0.4.6
+construct==2.10.70
+dill==0.3.8
+distlib==0.3.8
+filelock==3.13.3
+flightgear-python==1.6.0
+idna==3.6
+multiprocess==0.70.12.2
+platformdirs==4.2.0
+pynput==1.7.6
+pyserial==3.5
+requests==2.27.1
+six==1.16.0
+tornado==6.4
+urllib3==1.26.18
