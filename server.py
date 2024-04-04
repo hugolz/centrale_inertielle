@@ -17,12 +17,14 @@ import os
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
 DISPATCH_TIMEOUT_MS = 100
 
+
 define('port', type=int, default=8888)
 
 
 class MainHtml(tornado.web.RequestHandler):
+    DISPLAY_PAGE = "index.html" 
     def get(self):
-        self.render(f"{CLIENT_FILES_PATH}/client.html")
+        self.render(f"{CLIENT_FILES_PATH}/{MainHtml.DISPLAY_PAGE}")
 
 
 class ClientJs(tornado.web.RequestHandler):
@@ -30,6 +32,13 @@ class ClientJs(tornado.web.RequestHandler):
         with open(f"{CLIENT_FILES_PATH}/client.js", "r") as f:
             self.set_header("Content-Type", 'text/javascript; charset="utf-8"')
             self.write(f.read())
+            
+class PostHandler(tornado.web.RequestHandler):        
+    def post(self):
+        data = tornado.escape.json_decode(self.request.body)
+        print(data["state"])
+        self.write(data["state"])
+
 
 
 class ClientCss(tornado.web.RequestHandler):
@@ -92,6 +101,7 @@ def start():
         ('/', MainHtml),
         ('/websocket', ClientWS),
         ('/client.js', ClientJs),
+        ('/server.py', PostHandler),
         ('/style.css', ClientCss)
     ])
     server = tornado.httpserver.HTTPServer(tornado_app)
