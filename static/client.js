@@ -1,6 +1,6 @@
 let PRESS_COLOR = 'red';
 // This is the local addres of the machine that i use to dev this, you'll need to change it
-let WS_ADDRESS = '172.16.126.231'
+let WS_ADDRESS = '192.168.56.1'
 
 let websocket = false;
 
@@ -77,7 +77,7 @@ function open_ws(msg) {
 
 let slider = document.getElementById("myRange");
 if (slider != null) {
-    let calib = slider.value/10 ; // Display the default slider value
+    var calib = slider.value/10 ; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 slider.oninput = function() {
