@@ -7,20 +7,25 @@ import math
 from flightgear_python.fg_if import CtrlsConnection
 from logger import debug, info, warn, error, critical
 import serial
+import threading
 import serial_reader
 import listener
 
 gear_down_child_state = True
 running = False
 
+fdm_psi_rad = 0.0
+fdm_theta_rad = 0.0
+fdm_phi_rad = 0.0
+
 """
 Flightgear startup options
-    --native-ctrls=socket,out,30,localhost,5503,udp --native-ctrls=socket,in,30,localhost,5504,udp
+    --native-ctrls=socket,out,30,localhost,5503,udp --native-ctrls=socket,in,30,localhost,5504,udp --altitude=3000
 """
 
 
 def ctrls_callback(ctrls_data, event_pipe):
-    global gear_down_child_state
+    
     if event_pipe.child_poll():
         gear_down_child, data, = event_pipe.child_recv()  # unpack tuple
         # TODO: FG sometimes ignores "once" updates? i.e. if we set `ctrls_data.gear_handle`
@@ -50,7 +55,7 @@ def ctrls_callback(ctrls_data, event_pipe):
 
 
 def start():
-
+    global fdm_psi_rad, fdm_theta_rad, fdm_phi_rad, gear_down_child_state
     ctrls_conn = CtrlsConnection(ctrls_version=27)
     ctrls_event_pipe = ctrls_conn.connect_rx('localhost', 5503, ctrls_callback)
     ctrls_conn.connect_tx('localhost', 5504)
@@ -63,7 +68,7 @@ def start():
     gear_down_parent = True
     time.sleep(2)
     try:
-        with serial.Serial(port="COM6", baudrate=115200, timeout=1, writeTimeout=1) as serial_port:
+        with serial.Serial(port="/dev/tty.usbmodem101", baudrate=115200, timeout=1, writeTimeout=1) as serial_port:
             serial_reader.wait_for_init_gy(serial_port)
             while running:
 
@@ -79,6 +84,17 @@ def start():
                 data = base_data - read_data
                 # debug(f"{fdm_psi_rad},{fdm_theta_rad},{fdm_phi_rad}")
                 debug(f"Received data: {data}")
+            
+
+                precision = 100
+                addpsi = round(data.rx / precision, 3) * precision
+                addtheta = round(data.ry / precision, 3) * precision
+                addphi = round(data.rz / precision, 3) * precision
+
+                sensibility_fdm = 0.3
+                fdm_psi_rad += -addpsi * sensibility_fdm
+                fdm_theta_rad += addtheta * sensibility_fdm
+                fdm_phi_rad += addphi * sensibility_fdm
 
                 accumulated_data += data
 
@@ -89,6 +105,17 @@ def start():
                 # time.sleep(5)
     except Exception as e:
         error(f"Flightgear module encountered an error: {e}")
+        
+
+def start_threaded():
+    global running
+    running = True
+    threading.Thread(target=start).start()
+
+
+def stop():
+    global running
+    running = False
 
 
 if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows

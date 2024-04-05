@@ -8,6 +8,7 @@ import tornado.ioloop
 import tornado.wsgi
 import tornado.web
 import flightgear_fdm
+import flightgear_control
 import compass
 import threading
 import datetime
@@ -16,15 +17,16 @@ import os
 
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
 DISPATCH_TIMEOUT_MS = 100
+state =""
 
 
 define('port', type=int, default=8888)
 
 
 class MainHtml(tornado.web.RequestHandler):
-    DISPLAY_PAGE = "index.html" 
+    display_page = "index.html" 
     def get(self):
-        self.render(f"{CLIENT_FILES_PATH}/{MainHtml.DISPLAY_PAGE}")
+        self.render(f"{CLIENT_FILES_PATH}/{MainHtml.display_page}")
 
 
 class ClientJs(tornado.web.RequestHandler):
@@ -34,10 +36,23 @@ class ClientJs(tornado.web.RequestHandler):
             self.write(f.read())
             
 class PostHandler(tornado.web.RequestHandler):        
+    
     def post(self):
+        global state
         data = tornado.escape.json_decode(self.request.body)
-        print(data["state"])
-        self.write(data["state"])
+        state = data["state"]
+        self.write(state)
+        
+        match state:
+            case "pilot":
+                flightgear_control.start_threaded()
+            case "inertial":
+                flightgear_fdm.start_threaded()
+            case "":
+                pass
+            case _:
+                print(f"[ERROR] Couldn't read valid state for state : {data['state']}")
+        MainHtml.display_page = "/client.html"
 
 
 
@@ -50,6 +65,7 @@ class ClientCss(tornado.web.RequestHandler):
 
 class ClientWS(tornado.websocket.WebSocketHandler):
     clients = []
+    
 
     def check_origin(self, origin):
         return True
@@ -79,20 +95,43 @@ class ClientWS(tornado.websocket.WebSocketHandler):
 
 
 def dispatch_to_clients():
+    global state
     # This is not multithreaded, therefore there is no problem having an exec time > DISPATCH_TIMEOUT_MS
     tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(
         00, 00, 00, DISPATCH_TIMEOUT_MS), dispatch_to_clients)
 
-    for client in ClientWS.clients:
-        client.write_message(json.dumps({
-            "event": "fdm",
-            "data": {
-                "yaw": flightgear_fdm.fdm_psi_rad,
-                "pitch": flightgear_fdm.fdm_theta_rad,
-                "roll": flightgear_fdm.fdm_phi_rad,
-                "azimuth": compass.azimuth,
-            }
-        }))
+    match state:
+            case "pilot":
+                
+                for client in ClientWS.clients:
+                    client.write_message(json.dumps({
+                        "event": "fdm",
+                        "data": {
+                            "yaw": flightgear_control.fdm_psi_rad,
+                            "pitch": flightgear_control.fdm_theta_rad,
+                            "roll": flightgear_control.fdm_phi_rad,
+                            "azimuth": compass.azimuth,
+                        }
+                    }))
+                    
+            case "inertial":
+                for client in ClientWS.clients:
+                    client.write_message(json.dumps({
+                        "event": "fdm",
+                        "data": {
+                            "yaw": flightgear_fdm.fdm_psi_rad,
+                            "pitch": flightgear_fdm.fdm_theta_rad,
+                            "roll": flightgear_fdm.fdm_phi_rad,
+                            "azimuth": compass.azimuth,
+                        }
+                    }))
+                    
+            case "":
+                pass
+            
+            case _:
+                warn(f"[ERROR] Couldn't send proper data to client with STATE : {state}")
+    
 
 
 def start():
