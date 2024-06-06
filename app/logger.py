@@ -25,7 +25,7 @@ STR_TO_COLORAMA = {
 }
 
 LOGGER_LEVELS = [
-    "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+    "TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 ]
 
 
@@ -45,8 +45,9 @@ class logger():
             "[%(time)s] [%(fileName)s:%(lineNbr)s] [Thread:(%(threadName)s)] %(levelName)s: %(message)s"
 
         self.levelsDefaultColors = {
-            "debug": STR_TO_COLORAMA["green"],
-            "info": STR_TO_COLORAMA["cyan"],
+            "trace": STR_TO_COLORAMA["white"],
+            "debug": STR_TO_COLORAMA["cyan"],
+            "info": STR_TO_COLORAMA["green"],
             "warning": STR_TO_COLORAMA["yellow"],
             "error": STR_TO_COLORAMA["red"],
             "critical": STR_TO_COLORAMA["mangenta"],
@@ -115,7 +116,7 @@ class logger():
             "lineNbr": line,
         }
         msg = f"Uncaught exception: {str(value.__class__.__name__)}: {str(value)}"
-        self.error(msg, custom_data)
+        error(msg, custom_data)
         self.logToFile(msg, "a")
 
     def getData(self):
@@ -163,6 +164,12 @@ def init_global(autoreset=True, fmt="", custom_exception_hook=False, level=0, lo
         return
     logger_instance = logger(
         autoreset, fmt, custom_exception_hook, level, logFile)
+
+
+def trace(message="", custom_data: dict = {}):
+    if logger_instance == None:
+        return
+    logger_instance.log(message, "TRACE", custom_data)
 
 
 def debug(message="", custom_data: dict = {}):

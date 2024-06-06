@@ -2,7 +2,7 @@
 
 
 from pynput.keyboard import Key, Listener
-from logger import debug, info, warn, error, critical
+from app.logger import debug, info, warn, error, critical
 import copy
 
 last_pressed = None
@@ -38,20 +38,20 @@ def get_last_key():
 
 def start():
     global listener, running
-    running = True
     listener = Listener(
         on_press=on_press,
         on_release=on_release)
-    listener.start()
-    info("Listener as started")
+    running = True
+    listener.start()  # Blocking
 
 
 def start_threaded():
     import threading
     threading.Thread(target=start).start()
+    info("Listener has started")
 
 
 def stop():
     global listener
     listener.stop()
-    info("Listener has been stopped")
+    warn("Listener has been stopped")

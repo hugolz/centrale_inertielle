@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from logger import debug, info, warn, error, critical
+from app.logger import debug, info, warn, error, critical
 
 
 class Data:

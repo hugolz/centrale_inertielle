@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-from logger import debug, info, warn, error, critical
+from app.logger import debug, info, warn, error, critical
 from flightgear_python.fg_if import FDMConnection
-import serial_reader
+from app import serial_reader
 import threading
-import listener
-import serial 
-import server
+from app import listener
+import serial
+from app import server
 import copy
 import time
 import json
@@ -77,9 +77,10 @@ def start():
                 fdm_event_pipe.parent_send(
                     (fdm_psi_rad, fdm_theta_rad, fdm_phi_rad,))
     except Exception as e:
-        error(f"Flightgear module encountered an error: {e}")
+        warn(f"FlightgearFDM module encountered an error: {e}")
     fdm_conn.stop()
-    info("Flightgear thread has stopped")
+    info("FlightgearFDM thread has stopped")
+    running = False
 
 
 def start_threaded():

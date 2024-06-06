@@ -1,6 +1,2 @@
 Packages to install :
-tornado
-pynput
-flightgear_python
-pyserial
-
+pip install -r requirements.txt

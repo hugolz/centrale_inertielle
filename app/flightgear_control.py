@@ -5,11 +5,11 @@ Simple Controls example that sweeps the control surfaces and periodically puts t
 import time
 import math
 from flightgear_python.fg_if import CtrlsConnection
-from logger import debug, info, warn, error, critical
+from app.logger import debug, info, warn, error, critical
 import serial
 import threading
-import serial_reader
-import listener
+from app import serial_reader
+from app import listener
 
 gear_down_child_state = True
 running = False
@@ -25,7 +25,7 @@ Flightgear startup options
 
 
 def ctrls_callback(ctrls_data, event_pipe):
-    
+
     if event_pipe.child_poll():
         gear_down_child, data, = event_pipe.child_recv()  # unpack tuple
         # TODO: FG sometimes ignores "once" updates? i.e. if we set `ctrls_data.gear_handle`
@@ -49,8 +49,8 @@ def ctrls_callback(ctrls_data, event_pipe):
     # ctrls_data.rudder = math.sin(time.time())
     # ctrls_data.throttle[0] = (math.sin(time.time()) / 2) + 0.5
     # ctrls_data.throttle[1] = (-math.sin(time.time()) / 2) + 0.5
-    ctrls_data.throttle[0] = 1 
-    # ctrls_data.throttle[1] = 1 
+    ctrls_data.throttle[0] = 1
+    # ctrls_data.throttle[1] = 1
     return ctrls_data  # return the whole structure
 
 
@@ -84,7 +84,6 @@ def start():
                 data = base_data - read_data
                 # debug(f"{fdm_psi_rad},{fdm_theta_rad},{fdm_phi_rad}")
                 debug(f"Received data: {data}")
-            
 
                 precision = 100
                 addpsi = round(data.rx / precision, 3) * precision
@@ -104,13 +103,17 @@ def start():
                 # gear_down_parent = not gear_down_parent  # Flip gear state
                 # time.sleep(5)
     except Exception as e:
-        error(f"Flightgear module encountered an error: {e}")
-        
+        error(f"FlightgearCTRL module encountered an error: {e}")
+    ctrls_conn.stop()
+    warn(f"FlightgearCTRL module has stopped")
+    running = False
+
 
 def start_threaded():
     global running
     running = True
     threading.Thread(target=start).start()
+    info("FlightgearCTRL module has started")
 
 
 def stop():
