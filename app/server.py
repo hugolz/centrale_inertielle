@@ -31,15 +31,6 @@ class MainHtml(tornado.web.RequestHandler):
     def get(self):
         self.render(f"{CLIENT_FILES_PATH}/{self.display_page}")
 
-
-class ClientJs(tornado.web.RequestHandler):
-    def get(self):
-        self.set_header("Content-Type", 'text/javascript; charset="utf-8"')
-        self.render(f"{CLIENT_FILES_PATH}/client.js")
-
-
-class PostHandler(tornado.web.RequestHandler):
-
     def post(self):
         global state
         data = tornado.escape.json_decode(self.request.body)
@@ -56,6 +47,12 @@ class PostHandler(tornado.web.RequestHandler):
             case _:
                 error(f"Couldn't read valid state for state : {data['state']}")
         MainHtml.display_page = "/client.html"
+
+
+class ClientJs(tornado.web.RequestHandler):
+    def get(self):
+        self.set_header("Content-Type", 'text/javascript; charset="utf-8"')
+        self.render(f"{CLIENT_FILES_PATH}/client.js")
 
 
 class ClientCss(tornado.web.RequestHandler):
@@ -147,7 +144,6 @@ def start():
         ('/', MainHtml),
         ('/websocket', ClientWS),
         ('/client.js', ClientJs),
-        ('/server.py', PostHandler),
         ('/style.css', ClientCss)
     ])
     server = tornado.httpserver.HTTPServer(tornado_app)

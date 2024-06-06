@@ -44,7 +44,7 @@ function open_ws(msg) {
         ws.onmessage = function (evt) {
             msg = JSON.parse(evt.data);
             let pi = Math.PI
-            console.log(`Receiving ${JSON.stringify(msg)}`);
+            // console.log(`Receiving ${JSON.stringify(msg)}`);
             
             if (msg.event == "fdm") {
                 let yaw = (msg.data.yaw) * 180 / pi;
@@ -56,10 +56,8 @@ function open_ws(msg) {
                 if (svg != null) {
                     att(yaw, pitch, roll);
                     azimuth(azim)
-                    console.log("ok")
+                    // console.log("ok")
                 }
-                
-
 
             } else {
                 console.log('Unknown event: ' + msg.event)
@@ -79,10 +77,10 @@ let slider = document.getElementById("myRange");
 if (slider != null) {
     var calib = slider.value/10 ; // Display the default slider value
 
-// Update the current slider value (each time you drag the slider handle)
-slider.oninput = function() {
-  calib = parseFloat(this.value);
-}
+    // Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function() {
+      calib = parseFloat(this.value);
+    }
 }
 
 
@@ -90,7 +88,7 @@ async function stateCall(status) {
 
     console.log(status);
     try {
-      const response = await fetch("/server.py", {
+      const response = await fetch("#", {
         method: "POST", 
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +108,7 @@ async function stateCall(status) {
 
 
 function att(yaw, pitch, roll) {	
-    console.log(yaw + " " + pitch + " " + roll)
+    // console.log(yaw + " " + pitch + " " + roll)
     document.getElementById("pitchDisplay").innerHTML = "<br>" + pitch
     document.getElementById("rollDisplay").innerHTML = "<br>" + roll
 
