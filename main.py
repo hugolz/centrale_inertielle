@@ -8,11 +8,16 @@ from app import logger
 from app import server
 import time
 import sys
-
+from app import flightgear
 
 """
 Notes:
 """
+# flightgear.start(["--native-fdm=socket,out,30,localhost,5501,udp",
+#                   "--native-fdm=socket,in,30,localhost,5502,udp", "--fdm=null", "--altitude=3000"])
+# while True:
+#     pass
+# sys.exit(0)
 
 
 def main():
@@ -34,7 +39,7 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        info("Main KeyboardInterrupt")
+        logger.info("Main KeyboardInterrupt")
         pass
     # Cleanup
     flightgear_fdm.stop()

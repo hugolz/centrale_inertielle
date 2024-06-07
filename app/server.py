@@ -12,13 +12,21 @@ from app import flightgear_control
 from app import compass
 import threading
 import datetime
+import enum
 import json
 import os
+
+
+class State(enum.Enum):
+    MAIN = 0
+    PILOT = 1
+    INERTIAL = 2
+
 
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
 DISPATCH_TIMEOUT_MS = 100
 PORT = 8888
-state = ""
+state = State.MAIN
 running = False
 
 
@@ -26,33 +34,45 @@ define('port', type=int, default=PORT)
 
 
 class MainHtml(tornado.web.RequestHandler):
-    display_page = "index.html"
-
     def get(self):
-        self.render(f"{CLIENT_FILES_PATH}/{self.display_page}")
+        if state == State.MAIN:
+            self.render(f"{CLIENT_FILES_PATH}/index.html")
+        else:
+            self.render(f"{CLIENT_FILES_PATH}/client.html")
 
     def post(self):
         global state
         data = tornado.escape.json_decode(self.request.body)
-        state = data["state"]
-        self.write(state)
+        new_state = data["state"]
+        try:
+            state = State[new_state.upper()]
+        except Exception as e:
+            error(f"Could not understand received new state: {new_state}")
 
-        match state:
-            case "pilot":
-                flightgear_control.start_threaded()
-            case "inertial":
-                flightgear_fdm.start_threaded()
-            case "":
-                pass
-            case _:
-                error(f"Couldn't read valid state for state : {data['state']}")
-        MainHtml.display_page = "/client.html"
+        self.write(new_state)
+
+        if state == State.PILOT:
+            flightgear_control.start_threaded()
+        elif state == State.INERTIAL:
+            flightgear_fdm.start_threaded()
 
 
 class ClientJs(tornado.web.RequestHandler):
     def get(self):
         self.set_header("Content-Type", 'text/javascript; charset="utf-8"')
         self.render(f"{CLIENT_FILES_PATH}/client.js")
+
+
+class ControlsJs(tornado.web.RequestHandler):
+    def get(self):
+        self.set_header("Content-Type", 'text/javascript; charset="utf-8"')
+        self.render(f"{CLIENT_FILES_PATH}/controls.js")
+
+
+class WebsocketJs(tornado.web.RequestHandler):
+    def get(self):
+        self.set_header("Content-Type", 'text/javascript; charset="utf-8"')
+        self.render(f"{CLIENT_FILES_PATH}/websocket.js")
 
 
 class ClientCss(tornado.web.RequestHandler):
@@ -104,37 +124,30 @@ def dispatch_to_clients():
     tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(
         00, 00, 00, DISPATCH_TIMEOUT_MS), dispatch_to_clients)
 
-    match state:
-        case "pilot":
-
-            for client in ClientWS.clients:
-                client.write_message(json.dumps({
-                    "event": "fdm",
-                    "data": {
-                        "yaw": flightgear_control.fdm_psi_rad,
-                        "pitch": flightgear_control.fdm_theta_rad,
-                        "roll": flightgear_control.fdm_phi_rad,
-                        "azimuth": compass.azimuth,
-                    }
-                }))
-
-        case "inertial":
-            for client in ClientWS.clients:
-                client.write_message(json.dumps({
-                    "event": "fdm",
-                    "data": {
-                        "yaw": flightgear_fdm.fdm_psi_rad,
-                        "pitch": flightgear_fdm.fdm_theta_rad,
-                        "roll": flightgear_fdm.fdm_phi_rad,
-                        "azimuth": compass.azimuth,
-                    }
-                }))
-
-        case "":
-            pass
-
-        case _:
-            error(f"Couldn't send proper data to client with STATE: {state}")
+    if state == State.MAIN:
+        return  # Nothing to do, exit
+    elif state == State.PILOT:
+        for client in ClientWS.clients:
+            client.write_message(json.dumps({
+                "event": "fdm",
+                "data": {
+                    "yaw": flightgear_control.fdm_psi_rad,
+                    "pitch": flightgear_control.fdm_theta_rad,
+                    "roll": flightgear_control.fdm_phi_rad,
+                    "azimuth": compass.azimuth,
+                }
+            }))
+    elif state == State.INERTIAL:
+        for client in ClientWS.clients:
+            client.write_message(json.dumps({
+                "event": "fdm",
+                "data": {
+                    "yaw": flightgear_fdm.fdm_psi_rad,
+                    "pitch": flightgear_fdm.fdm_theta_rad,
+                    "roll": flightgear_fdm.fdm_phi_rad,
+                    "azimuth": compass.azimuth,
+                }
+            }))
 
 
 def start():
@@ -144,7 +157,11 @@ def start():
         ('/', MainHtml),
         ('/websocket', ClientWS),
         ('/client.js', ClientJs),
-        ('/style.css', ClientCss)
+        ('/style.css', ClientCss),
+        ('/controls.js', ControlsJs),
+        ('/websocket.js', WebsocketJs),
+
+
     ])
     server = tornado.httpserver.HTTPServer(tornado_app)
     server.listen(options.port)

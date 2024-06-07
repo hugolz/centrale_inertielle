@@ -9,7 +9,9 @@
 		<link rel="stylesheet" type="text/css" href="./style.css">
 		<!-- Latest compiled and minified JavaScript -->
 		<script defer src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" ></script>
+    	<script defer src="./websocket.js"></script>
 		<script defer src="./client.js"></script>
+		<script defer src="./controls.js"></script>
 		<!-- <script src="c172p/WebPanel/bootstrap/bootstrap.min.js"></script>
 		<script type="text/javascript" charset="utf-8" src="c172p/WebPanel/lib/jquery.fganimate.js"></script>
 		<script type="text/javascript" charset="utf-8" src="c172p/WebPanel/lib/fgfs.js"></script> -->
@@ -307,7 +309,7 @@
 						<td><br><br>
 							<div class="slidecontainer">
 								<input type="range" min="-180.0" max="180.0" value="0.0" class="slider" id="myRange">
-								<input type="button" onclick="calib=0;document.getElementById('myRange').value=0">
+								<button onclick="calib=0;document.getElementById('myRange').value=0">Reset</button>
 							</div>
 						</td>
 					</tr>

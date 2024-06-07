@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<system name="test-jet">
+
+alias
+
+
+  <channel name="test">
+
+     <fcs_function name="systems/test-jet/Temp-degC">
+       <function>
+         <product>
+             <sum>
+               <property>atmosphere/T-R</property>
+               <value>-491.67</value>
+             </sum>
+             <value>0.5555555555</value>
+         </product>
+       </function>
+     </fcs_function>
+
+     <fcs_function name="systems/test-jet/EGT-degC">
+       <function>
+         <product>
+             <sum>
+               <property>../../engines/engine/egt-degf</property>
+               <value>-32.0</value>
+             </sum>
+             <value>0.5555555555</value>
+         </product>
+       </function>
+     </fcs_function>
+
+  </channel>
+
+
+</system>
