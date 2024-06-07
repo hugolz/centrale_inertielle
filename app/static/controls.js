@@ -60,9 +60,9 @@ document.onmousemove = (event) => {
         // The compass rotates right (plane goes left)
         // let angle_delta = two_points_angle(compass_center, getMousePosition()) * (180 / Math.PI) - 90 - drag_start_angle 
 
-        // document.getElementById("myRange").value = base_angle +  angle_delta;
+        document.getElementById("myRange").value = base_angle +  angle_delta;
         calib = base_angle + angle_delta
-        azimuth(base_angle + angle_delta)
+        // azimuth(base_angle + angle_delta)
     }
 
     document.querySelector("#DG").addEventListener("mousedown", (event) => {

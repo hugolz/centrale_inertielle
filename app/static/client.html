@@ -27,7 +27,7 @@
 			<tr><td height=20></td><td></td></tr>
 			<tr><td> Step </td><td> <input type="text" name="step" value="0.0"></td></tr>
 			<tr><td height=20></td><td></td></tr>
-			<tr><td align="center" colspan="2"> <input type="button"  value="Valider"  onclick="return att(yaw.value, pitch.value, roll.value);"></td></tr>
+			<tr><td align="center" colspan="2"> <input type="button"  value="Valider"  onclick="return update_artificial_horizon(yaw.value, pitch.value, roll.value);"></td></tr>
 			<tr><td height=20> </td><td> </td></tr>
 			<tr><td align="center" colspan="2"> <input type="button"  value="Démo"  onclick="demo();"></td><td> <input type="text" name="time" value="0.0"> Durée en s</td></tr>
 			<tr><td height=20></td><td></td></tr>
@@ -44,9 +44,9 @@
 	</form> -->
 		<!--<form name="alt"> Altitude 
 			<input type="text" name="alt" value="0.0">
-			<input type="button" value="Valider" onclick="return altitude(document.alt.alt.value);">
-			<input type="button" width=30 value=" + " onclick="return altitude(document.alt.alt.value - (-document.attitude.step.value*10));">
-			<input type="button" width=30 value=" - " onclick="return altitude(document.alt.alt.value - document.attitude.step.value*10);">
+			<input type="button" value="Valider" onclick="return update_altitude(document.alt.alt.value);">
+			<input type="button" width=30 value=" + " onclick="return update_altitude(document.alt.alt.value - (-document.attitude.step.value*10));">
+			<input type="button" width=30 value=" - " onclick="return update_altitude(document.alt.alt.value - document.attitude.step.value*10);">
 		</form> -->
 
 		<div id="instrument_wrapper">

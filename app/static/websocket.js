@@ -43,19 +43,18 @@ function open_ws(msg) {
 
         ws.onmessage = function (evt) {
             msg = JSON.parse(evt.data);
-            let pi = Math.PI
-            // console.log(`Receiving ${JSON.stringify(msg)}`);
+            console.log(`Receiving ${JSON.stringify(msg)}`);
             
             if (msg.event == "fdm") {
-                let yaw = (msg.data.yaw) * 180 / pi;
-                let pitch = (msg.data.pitch) * 180 / pi;
-                let roll = (msg.data.roll) * 180 / pi;
-                let azim = (msg.data.azimuth)
+                let yaw = msg.data.yaw * 180 / Math.PI;
+                let pitch = msg.data.pitch * 180 / Math.PI;
+                let roll = msg.data.roll * 180 / Math.PI;
+                let azimuth = msg.data.azimuth
                 let svg = document.getElementById("instrument_wrapper");
 
                 if (svg != null) {
-                    att(yaw, pitch, roll);
-                    azimuth(azim)
+                    update_artificial_horizon(yaw, pitch, roll);
+                    update_compass(azimuth)
                     // console.log("ok")
                 }
 
