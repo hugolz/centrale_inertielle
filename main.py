@@ -12,6 +12,8 @@ from app import flightgear
 
 """
 Notes:
+
+
 """
 # flightgear.start(["--native-fdm=socket,out,30,localhost,5501,udp",
 #                   "--native-fdm=socket,in,30,localhost,5502,udp", "--fdm=null", "--altitude=3000"])

@@ -46,7 +46,7 @@ function update_compass(azimuth){
     azimuth += calib
 
     compass.setAttribute("transform", "rotate(" + -azimuth + " 256.0 256.0 ) ");
-    if (azimuth <=0) {
+    if (azimuth <0) {
         azimuth += 360.
     }
     document.getElementById("headingDisplay").innerHTML = "<br>" + Math.round(azimuth) + '°';
