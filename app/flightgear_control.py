@@ -10,6 +10,7 @@ import serial
 import threading
 from app import serial_reader
 from app import listener
+from app import flightgear
 
 gear_down_child_state = True
 running = False
@@ -56,6 +57,11 @@ def ctrls_callback(ctrls_data, event_pipe):
 
 def start():
     global fdm_psi_rad, fdm_theta_rad, fdm_phi_rad, gear_down_child_state
+
+    flightgear.start(["--native-ctrls=socket,out,30,localhost,5503,udp",
+                      "--native-ctrls=socket,in,30,localhost,5504,udp",
+                      "--altitude=3000"])
+
     ctrls_conn = CtrlsConnection(ctrls_version=27)
     ctrls_event_pipe = ctrls_conn.connect_rx('localhost', 5503, ctrls_callback)
     ctrls_conn.connect_tx('localhost', 5504)
@@ -105,6 +111,8 @@ def start():
     except Exception as e:
         error(f"FlightgearCTRL module encountered an error: {e}")
     ctrls_conn.stop()
+    stop()
+
     warn(f"FlightgearCTRL module has stopped")
     running = False
 
@@ -119,6 +127,7 @@ def start_threaded():
 def stop():
     global running
     running = False
+    flightgear.stop()
 
 
 if __name__ == '__main__':  # NOTE: This is REQUIRED on Windows

@@ -10,6 +10,7 @@ from app import server
 import copy
 import time
 import json
+from app import flightgear
 
 fdm_psi_rad = 0.0
 fdm_theta_rad = 0.0
@@ -38,6 +39,11 @@ def fdm_callback(fdm_data, event_pipe):
 def start():
     global fdm_psi_rad, fdm_theta_rad, fdm_phi_rad, running
     running = True
+
+    flightgear.start(["--native-fdm=socket,out,30,localhost,5501,udp",
+                      "--native-fdm=socket,in,30,localhost,5502,udp",
+                      "--fdm=null", "--max-fps=30", "--altitude=3000"])
+
     base_data = serial_reader.Data()
 
     fdm_conn = FDMConnection(fdm_version=24)
@@ -79,7 +85,8 @@ def start():
     except Exception as e:
         warn(f"FlightgearFDM module encountered an error: {e}")
     fdm_conn.stop()
-    info("FlightgearFDM thread has stopped")
+    stop()
+    warn("FlightgearFDM thread has stopped")
     running = False
 
 
@@ -92,6 +99,7 @@ def start_threaded():
 def stop():
     global running
     running = False
+    flightgear.stop()
 
 
 if __name__ == "__main__":

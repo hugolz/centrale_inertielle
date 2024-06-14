@@ -62,7 +62,7 @@ document.onmousemove = (event) => {
 
         calib = base_angle + angle_delta
         console.log("setting slider to: " + base_angle + angle_delta);
-        document.getElementById("myRange").value = base_angle +  angle_delta;
+        document.getElementById("myRange").value = -(base_angle +  angle_delta);
         // azimuth(base_angle + angle_delta)
     }
 

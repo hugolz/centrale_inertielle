@@ -47,4 +47,5 @@ if __name__ == "__main__":
     flightgear_fdm.stop()
     flightgear_control.stop()
     compass.stop()
+    flightgear.stop()
     listener.stop()
