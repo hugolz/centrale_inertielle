@@ -18,6 +18,7 @@ h2, p {
   display: flex;
   font-style: none;
   justify-content: center;
+  text-align: center;
 }
 
 .flex_container {

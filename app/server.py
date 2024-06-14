@@ -21,6 +21,7 @@ class State(enum.Enum):
     MAIN = 0
     PILOT = 1
     INERTIAL = 2
+    MANUAL = 3
 
 
 CLIENT_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/static"
@@ -37,8 +38,10 @@ class MainHtml(tornado.web.RequestHandler):
     def get(self):
         if state == State.MAIN:
             self.render(f"{CLIENT_FILES_PATH}/index.html")
-        else:
-            self.render(f"{CLIENT_FILES_PATH}/client.html")
+        elif state == State.INERTIAL or state == State.PILOT:
+            self.render(f"{CLIENT_FILES_PATH}/module_interface.html")
+        else :
+            self.render(f"{CLIENT_FILES_PATH}/manual_interface.html")
 
     def post(self):
         global state
@@ -51,7 +54,7 @@ class MainHtml(tornado.web.RequestHandler):
 
         self.write(new_state)
 
-        if state == State.PILOT:
+        if state == State.PILOT or state == State.MANUAL :
             flightgear_control.start_threaded()
         elif state == State.INERTIAL:
             flightgear_fdm.start_threaded()
