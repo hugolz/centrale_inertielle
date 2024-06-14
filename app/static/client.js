@@ -62,6 +62,12 @@ function update_artificial_horizon(yaw, pitch, roll) {
     document.querySelector("#Roll").setAttribute("transform", "rotate(" + roll + ", 256.0, 256.0)");
 }
 
+function update_artificial_horizon2(yaw, pitch, roll) {	
+
+  document.querySelector("#Pitch").setAttribute("transform", "translate(" + yaw + "," + pitch + ")");
+  document.querySelector("#Roll").setAttribute("transform", "rotate(" + roll + ", 256.0, 256.0)");
+}
+
 // function azimuth(azim) {
 //     // calib < 0 ? azim -=(-calib): azim+= calib ?????????
 //     azim += calib
@@ -84,44 +90,43 @@ function update_altitude(alt) {
     document.alt.alt.value = alt;
 }
 
-
-// Unused **for now**
-// function demo() {	
-//     var r = document.attitude.roll.value;		
-//     var timer = setInterval(() => {
-//         r = parseFloat(document.attitude.step.value) + parseFloat(document.attitude.roll.value);
-//         update_artificial_horizon(document.attitude.yaw.value, document.attitude.pitch.value, r); 
-//         document.attitude.roll.value = r;
-//     }, 500);							
-//     setTimeout(() => { clearInterval(timer); alert("stop"); }, document.attitude.time.value * 1000);
-// }
-// function rollLeft(roll, step) {	
-//     r = parseFloat(step) + parseFloat(roll);
-//     update_artificial_horizon(document.attitude.yaw.value, document.attitude.pitch.value, r);
-//     document.attitude.roll.value = r;
-// }
-// function rollRight(roll, step) {
-//     r = parseFloat(roll) - parseFloat(step);
-//     update_artificial_horizon(document.attitude.yaw.value, document.attitude.pitch.value, r);
-//     document.attitude.roll.value = r;
-// }
-// function pitchDown(pitch, step) {
-//     p = parseFloat(pitch) - parseFloat(step);
-//     update_artificial_horizon(document.attitude.yaw.value, p, document.attitude.roll.value);
-//     document.attitude.pitch.value = p;
-// }
-// function pitchUp(pitch, step) {
-//     p = parseFloat(pitch) + parseFloat(step);
-//     update_artificial_horizon(document.attitude.yaw.value, p, document.attitude.roll.value);
-//     document.attitude.pitch.value = p;
-// }
-// function yawLeft(yaw, step) {
-//     y = parseFloat(step) + parseFloat(yaw);
-//     update_artificial_horizon(y, document.attitude.pitch.value, document.attitude.roll.value);
-//     document.attitude.yaw.value = y;
-// }
-// function yawRight(yaw, step) {
-//     y = parseFloat(yaw) - parseFloat(step);
-//     update_artificial_horizon(y, document.attitude.pitch.value, document.attitude.roll.value);
-//     document.attitude.yaw.value = y;
-// }
+ function demo() {	
+     var r = document.attitude.roll.value;		
+     var timer = setInterval(() => {
+         r = parseFloat(document.attitude.step.value) + parseFloat(document.attitude.roll.value);
+         update_artificial_horizon2(document.attitude.yaw.value, document.attitude.pitch.value, r); 
+         document.attitude.roll.value = r;
+     }, 500);							
+     setTimeout(() => { clearInterval(timer); alert("stop"); }, document.attitude.time.value * 1000);
+ }
+ function rollLeft(roll, step) {	
+     r = parseFloat(step) + parseFloat(roll);
+     update_artificial_horizon2(document.attitude.yaw.value, document.attitude.pitch.value, r);
+     document.attitude.roll.value = r;
+ }
+ function rollRight(roll, step) {
+     r = parseFloat(roll) - parseFloat(step);
+     update_artificial_horizon2(document.attitude.yaw.value, document.attitude.pitch.value, r);
+     document.attitude.roll.value = r;
+ }
+ function pitchDown(pitch, step) {
+     p = parseFloat(pitch) - parseFloat(step);
+     console.log("coucou")
+     update_artificial_horizon2(document.attitude.yaw.value, p, document.attitude.roll.value);
+     document.attitude.pitch.value = p;
+ }
+ function pitchUp(pitch, step) {
+     p = parseFloat(pitch) + parseFloat(step);
+     update_artificial_horizon2(document.attitude.yaw.value, p, document.attitude.roll.value);
+     document.attitude.pitch.value = p;
+ }
+ function yawLeft(yaw, step) {
+     y = parseFloat(step) + parseFloat(yaw);
+     update_artificial_horizon2(y, document.attitude.pitch.value, document.attitude.roll.value);
+     document.attitude.yaw.value = y;
+ }
+ function yawRight(yaw, step) {
+     y = parseFloat(yaw) - parseFloat(step);
+     update_artificial_horizon2(y, document.attitude.pitch.value, document.attitude.roll.value);
+     document.attitude.yaw.value = y;
+ }
