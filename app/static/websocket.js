@@ -1,5 +1,5 @@
 // Address of the server
-let WS_ADDRESS = '172.20.160.1'
+let WS_ADDRESS = '172.22.96.1'
 
 let websocket = false;
 
@@ -54,8 +54,14 @@ function open_ws(msg) {
             let azimuth = msg.data.azimuth
             let svg = document.getElementById("instrument_wrapper");
 
-            if (svg != null) {
+
+            if (document.getElementById("pitchDisplay") != null) {
                 update_artificial_horizon(yaw, pitch, roll);
+            }
+
+            if (svg != null) {
+                console.log(`${yaw}, ${pitch}, ${roll}`)
+                update_artificial_horizon2(yaw, pitch, roll);
                 update_compass(azimuth)
                 // console.log("ok")
             }

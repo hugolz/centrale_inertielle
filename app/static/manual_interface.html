@@ -114,10 +114,10 @@
 						<tr><td> Roulis </td><td> <input type="text" name="roll" id="roll" value="0.0"></td></tr>
 						<tr><td> Step </td><td> <input type="text" name="step" value="0.0"></td></tr>
 						<tr><td height=20> </td></tr>
-						<tr><td> Cap </td><td> <input type="text" name="cap" id="cap" value="0.0"></td></tr>
+						<!-- <tr><td> Cap </td><td> <input type="text" name="cap" id="cap" value="0.0"></td></tr> -->
 						<tr><td> Vitesse (seule en noeuds) </td><td> <input type="text" name="speed" id="speed" value="0.0"></td></tr>
 						<tr><td height=20></td><td></td></tr>
-						<tr><td align="center" colspan="2"> <input type="button"  value="Valider"  onclick="return update_artificial_horizon2(yaw.value, pitch.value, roll.value);"></td></tr>
+						<tr><td align="center" colspan="2"> <input type="button"  value="Valider"  onclick="update_artificial_horizon2(yaw.value, pitch.value, roll.value);start_flightgear()"></td></tr>
 						<tr><td height=20> </td></tr>
 						<tr><td height=20></td></tr>
 						<tr><td align="center" colspan="2"> <input type="button"  value="Tangage ⬇️"  onclick="pitchDown(pitch.value, document.attitude.step.value);"></td></tr>

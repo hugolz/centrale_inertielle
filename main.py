@@ -2,6 +2,7 @@
 
 from app import flightgear_fdm
 from app import flightgear_control
+from app import flightgear_manual
 from app import compass
 from app import listener
 from app import logger
@@ -46,6 +47,7 @@ if __name__ == "__main__":
     # Cleanup
     flightgear_fdm.stop()
     flightgear_control.stop()
+    flightgear_manual.stop()
     compass.stop()
     flightgear.stop()
     listener.stop()
