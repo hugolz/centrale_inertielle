@@ -1,5 +1,5 @@
 // Address of the server
-let WS_ADDRESS = '172.22.96.1'
+let WS_ADDRESS = '127.0.0.1'
 
 let websocket = false;
 
@@ -11,7 +11,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
         websocket = false;
     }
 
-    var msg = { event: 'register', };
+    var msg = {
+        event: 'register',
+    };
     ws_send(msg);
 });
 
@@ -46,7 +48,7 @@ function open_ws(msg) {
     ws.onmessage = function (evt) {
         msg = JSON.parse(evt.data);
         console.log(`Receiving ${JSON.stringify(msg)}`);
-            
+
         if (msg.event == "fdm") {
             let yaw = msg.data.yaw * 180 / Math.PI;
             let pitch = msg.data.pitch * 180 / Math.PI;
@@ -71,10 +73,14 @@ function open_ws(msg) {
         }
     };
 
-    ws.onclose = function () { 
+    ws.onclose = function () {
         // websocket is closed, re-open
         console.log("Connection is closed... reopen");
-        var msg = { event: 'register', };
-        setTimeout(function () { ws_send(msg); }, 1000);
+        var msg = {
+            event: 'register',
+        };
+        setTimeout(function () {
+            ws_send(msg);
+        }, 1000);
     };
 }

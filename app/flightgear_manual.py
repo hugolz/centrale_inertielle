@@ -13,6 +13,11 @@ import copy
 import time
 import json
 
+
+fdm_psi_rad = 0.0
+fdm_theta_rad = 0.0
+fdm_phi_rad = 0.0
+
 running = False
 """
 Flightgear startup options
@@ -30,11 +35,11 @@ def fdm_callback(fdm_data, event_pipe):
 
     # print(f"Updating callback.. {fdm_data['psi_rad']}, {fdm_data['theta_rad']}, {fdm_data['phi_rad']}")
 
-    return fdm_data
+    return None
 
 
 def start():
-    global running
+    global fdm_psi_rad, fdm_theta_rad, fdm_phi_rad, running
     running = True
 
     base_data = serial_reader.Data()
@@ -46,7 +51,25 @@ def start():
 
     try:
         while running:
+            try:
+                with open("cache", "r") as f:
+                    content = f.read()
+                    splitted = content.split(" ")
+                    if len(splitted) != 3:
+                        # Read error, probably caused by concurency between threads, a mutex could be used to fix it
+                        continue
+                    fdm_psi_rad = splitted[0]
+                    fdm_theta_rad = splitted[1]
+                    fdm_phi_rad = splitted[2]
+            except IOError as e:
+                warn(f"Cache reset due to: {e}")
+                with open("cache", "w") as f:
+                    f.write("0 0 0")
+            except Exception as e:
+                warn(f"Could not read the cache due to: {e}")
+
             fdm_event_pipe.parent_send((0,))
+
     except Exception as e:
         warn(f"FlightgearMANUAL module encountered an error: {e}")
     fdm_conn.stop()
@@ -59,6 +82,7 @@ def start_threaded():
     global running
     running = True
     threading.Thread(target=start).start()
+    info("FlightgearMANUAL module has started")
 
 
 def stop():
