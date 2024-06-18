@@ -94,6 +94,7 @@ def start_threaded():
     global running
     running = True
     threading.Thread(target=start).start()
+    info("FlightgearFDM module has started")
 
 
 def stop():

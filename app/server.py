@@ -130,10 +130,9 @@ class Flightgear(tornado.web.RequestHandler):
             pitch = data["pitch"]
             roll = data["roll"]
             vc = data["vc"]
-            debug(f"yaw: {yaw}, pitch: {pitch}, roll: {roll}")
             flightgear.start(["--native-fdm=socket,out,30,localhost,5501,udp",
                               "--native-fdm=socket,in,30,localhost,5502,udp",
-                              "--max-fps=30", "--altitude=3000",
+                              "--max-fps=60", "--altitude=3000", "--enable-fuel-freeze",
                               f"--heading={yaw}", f"--roll={pitch}", f"--pitch={roll}", f"--vc={vc}"])
             self.write("Ok")
         elif command == "stop":
@@ -182,29 +181,13 @@ def dispatch_to_clients():
                 }
             }))
     elif state == State.MANUAL and flightgear.process != None:
-        fdm_psi_rad = 0
-        fdm_theta_rad = 0
-        fdm_phi_rad = 0
-
-        try:
-            with open("cache", "r") as f:
-                content = f.read()
-                splitted = content.split(" ")
-                fdm_psi_rad = splitted[0]
-                fdm_theta_rad = splitted[1]
-                fdm_phi_rad = splitted[2]
-        except Exception as e:
-            with open("cache", "w") as f:
-                f.write("0 0 0")
-
-        debug(f"Sending {fdm_psi_rad}, {fdm_theta_rad}, {fdm_phi_rad}")
         for client in ClientWS.clients:
             client.write_message(json.dumps({
                 "event": "fdm",
                 "data": {
-                    "yaw": fdm_psi_rad,
-                    "pitch": fdm_theta_rad,
-                    "roll": fdm_phi_rad,
+                    "yaw": flightgear_manual.fdm_psi_rad,
+                    "pitch": flightgear_manual.fdm_theta_rad,
+                    "roll": flightgear_manual.fdm_phi_rad,
                     "azimuth": compass.azimuth,
                 }
             }))
