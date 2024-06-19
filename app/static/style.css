@@ -27,13 +27,12 @@ h2, p {
   align-items: center;
 }
 
- 
-
 .buttons {
-  margin: 20px;
+/*  margin: 20px;*/
   padding: 2em;
   border-radius: 20px;
-  font-size: 1.25em;
+/*  font-size: 1.25em;*/
+font-size:1.3vw;
 }
 
 .buttons:hover {
