@@ -31,7 +31,6 @@ def stop():
         # No action needed
         return
 
-    # import signal
     from app.logger import warn
     process.kill()
 
@@ -39,4 +38,3 @@ def stop():
     _, _ = process.communicate()
     process = None
     warn("flightgear exited")
-    return
